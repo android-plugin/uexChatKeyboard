@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<uexplugins>
+
+    <plugin
+        className="org.zywx.wbpalmstar.plugin.chatkeyboard.EUExChatKeyboard" uexName="uexChatKeyboard" >
+        <method name="open" />
+        <method name="close" />
+        <method name="onCommit" />
+        <method name="onShareMenuItem" />
+        <method name="onVoiceAction" />
+    </plugin>
+
+</uexplugins>

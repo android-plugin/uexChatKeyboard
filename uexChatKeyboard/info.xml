@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<uexplugins>
+    <plugin
+        uexName="uexChatKeyboard" version="3.0.5" build="5">
+        <info>5:修复点击输入框再点击物理返回键，直接退出插件问题</info>
+        <build>4:修改open接口</build>
+        <build>3:修复插件关闭时系统键盘还显示问题</build>
+        <build>2:修复第二次打开界面空指针问题</build>
+        <build>1:clean函数中调用close方法</build>
+        <build>0:ChatKeyboard插件基础版</build>
+    </plugin>
+</uexplugins>
