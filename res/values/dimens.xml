@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="plugin_chatkeyboard_input_layout_height">50dip</dimen>
+    <dimen name="plugin_chatkeyboard_layout_height">250dip</dimen>
+    <dimen name="plugin_chatkeyboard_emojicons_column_width">50dip</dimen>
+    <dimen name="plugin_chatkeyboard_shares_column_width">72dip</dimen>
+    <dimen name="plugin_chatkeyboard_pager_indicator_width">6dip</dimen>
+    <dimen name="plugin_chatkeyboard_pager_indicator_left">3dip</dimen>
+    <dimen name="plugin_chatkeyboard_pager_indicator_top">12dip</dimen>
+
+    <dimen name="indicator_right_padding">10dp</dimen>
+    <dimen name="indicator_corner_radius">12dp</dimen>
+    <dimen name="indicator_internal_padding">4dp</dimen>
+    
+    <dimen name="slidingmenu_offset">60dp</dimen>
+    <dimen name="slidingmenu_width">240dp</dimen>
+    <dimen name="shadow_width">15dp</dimen>
+</resources>
