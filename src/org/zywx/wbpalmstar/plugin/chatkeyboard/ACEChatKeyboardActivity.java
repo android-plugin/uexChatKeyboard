@@ -747,6 +747,25 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 			mEmojiconsLayout.setVisibility(View.GONE);
 			mPagerLayout.setVisibility(View.GONE);
 		}
+
+        mEditText
+                .setOnFocusChangeListener(new android.view.View.OnFocusChangeListener()
+                {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus)
+                    {
+                        if (!hasFocus)
+                        {
+                            // 此处为失去焦点时的处理内容
+                            mEmojiconsLayout.setVisibility(View.GONE);
+                            mPagerLayout.setVisibility(View.GONE);
+                        } else
+                        {
+                            // 此处为得到焦点时的处理内容
+                        }
+                    }
+                });
+
 	}
 
 	private void toggleBtnAdd(boolean visible) {
@@ -777,6 +796,23 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 			mSharesLayout.setVisibility(View.GONE);
 			mPagerLayout.setVisibility(View.GONE);
 		}
+        mEditText
+                .setOnFocusChangeListener(new android.view.View.OnFocusChangeListener()
+                {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus)
+                    {
+                        if (!hasFocus)
+                        {
+                            // 此处为失去焦点时的处理内容
+                            mEmojiconsLayout.setVisibility(View.GONE);
+                            mPagerLayout.setVisibility(View.GONE);
+                        } else
+                        {
+                            // 此处为得到焦点时的处理内容
+                        }
+                    }
+                });
 	}
 
 	private void toggleBtnSend() {
@@ -851,7 +887,7 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 					completeRecord();
 					jsonVoiceActionCallback(1);
 				}
-				Message message = new Message(); 
+				Message message = new Message();
 				message.what = msg.what;
 				message.arg1 = msg.arg1 + 1;
 				sendMessageDelayed(message, 1000);
