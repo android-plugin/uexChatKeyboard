@@ -116,7 +116,6 @@ public class EUExChatKeyboard extends EUExBase implements Parcelable {
          //当前输入框的高度是固定的，50dp
         int height = dp2px(mContext, 50);
         String result = "{\"height\":" + "\"" + height + "\"}";
-        JSONObject obj = new JSONObject();
         String jsCallBack = func_on_callback + "('" + result + "');";
         onCallback(jsCallBack);
     }
