@@ -8,6 +8,7 @@
         <method name="onCommit" />
         <method name="onShareMenuItem" />
         <method name="onVoiceAction" />
+        <method name="getInputBarHeight"/>
     </plugin>
 
 </uexplugins>

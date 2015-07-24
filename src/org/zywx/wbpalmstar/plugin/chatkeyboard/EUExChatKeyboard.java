@@ -1,11 +1,5 @@
 package org.zywx.wbpalmstar.plugin.chatkeyboard;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.zywx.wbpalmstar.base.BUtility;
-import org.zywx.wbpalmstar.engine.EBrowserView;
-import org.zywx.wbpalmstar.engine.universalex.EUExBase;
-
 import android.app.Activity;
 import android.app.ActivityGroup;
 import android.app.LocalActivityManager;
@@ -19,18 +13,25 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnTouchListener;
+import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+
+import org.json.JSONObject;
+import org.zywx.wbpalmstar.base.BUtility;
+import org.zywx.wbpalmstar.engine.EBrowserView;
+import org.zywx.wbpalmstar.engine.universalex.EUExBase;
 
 public class EUExChatKeyboard extends EUExBase implements Parcelable {
 
 	public static final String CHATKEYBOARD_FUN_PARAMS_KEY = "chatKeyboardFunParamsKey";
 	public static final String CHATKEYBOARD_ACTIVITY_ID = "chatKeyboardActivityID";
+    static final String func_on_callback = "javascript:uexChatKeyboard.cbGetInputBarHeight";
 
 	public static final int CHATKEYBOARD_MSG_OPEN = 0;
 	public static final int CHATKEYBOARD_MSG_CLOSE = 1;
+    public static final int CHATKEYBOARD_MSG_GET_INPUTBAR_HEIGHT = 2;
 	private static LocalActivityManager mgr;
 
 	public EUExChatKeyboard(Context context, EBrowserView view) {
@@ -55,7 +56,9 @@ public class EUExChatKeyboard extends EUExBase implements Parcelable {
 	public void onHandleMessage(Message msg) {
 		if (msg.what == CHATKEYBOARD_MSG_OPEN) {
 			handleOpen(msg);
-		} else {
+		} else if (msg.what == CHATKEYBOARD_MSG_GET_INPUTBAR_HEIGHT) {
+            handleGetInputBarHeight(msg);
+        } else {
 			handleMessageInChatKeyboard(msg);
 		}
 	}
@@ -89,7 +92,7 @@ public class EUExChatKeyboard extends EUExBase implements Parcelable {
 
 	private void handleOpen(Message msg) {
 		String[] params = msg.getData().getStringArray(
-				CHATKEYBOARD_FUN_PARAMS_KEY);
+                CHATKEYBOARD_FUN_PARAMS_KEY);
 		try {
 			String activityId = CHATKEYBOARD_ACTIVITY_ID
 					+ EUExChatKeyboard.this.hashCode();
@@ -109,6 +112,14 @@ public class EUExChatKeyboard extends EUExBase implements Parcelable {
 			e.printStackTrace();
 		}
 	}
+    private void handleGetInputBarHeight(Message msg) {
+         //当前输入框的高度是固定的，50dp
+        int height = dp2px(mContext, 50);
+        String result = "{\"height\":" + "\"" + height + "\"}";
+        JSONObject obj = new JSONObject();
+        String jsCallBack = func_on_callback + "('" + result + "');";
+        onCallback(jsCallBack);
+    }
 
 	private Intent createActivityIntent(String[] params) throws Exception {
 		Intent intent = new Intent(mContext, ACEChatKeyboardActivity.class);
@@ -182,23 +193,23 @@ public class EUExChatKeyboard extends EUExBase implements Parcelable {
 		mBrwView.addViewToCurrentWindow(child, lp);
 		
 		mBrwView.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					DisplayMetrics dm = mContext.getResources().getDisplayMetrics();
-					float h = child.getHeight();
-					float y = event.getY();
-					if (dm.heightPixels - Math.abs(y) > h) {
-						Activity activity = mgr.getActivity(activityId);
-						if (activity != null
-								&& activity instanceof ACEChatKeyboardActivity) {
-							((ACEChatKeyboardActivity) activity).outOfViewTouch();
-						}
-					}
-				}
-				return false;
-			}
-		});
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    DisplayMetrics dm = mContext.getResources().getDisplayMetrics();
+                    float h = child.getHeight();
+                    float y = event.getY();
+                    if (dm.heightPixels - Math.abs(y) > h) {
+                        Activity activity = mgr.getActivity(activityId);
+                        if (activity != null
+                                && activity instanceof ACEChatKeyboardActivity) {
+                            ((ACEChatKeyboardActivity) activity).outOfViewTouch();
+                        }
+                    }
+                }
+                return false;
+            }
+        });
 	}
 
 	public void open(String[] params) {
@@ -209,7 +220,16 @@ public class EUExChatKeyboard extends EUExBase implements Parcelable {
 		sendMessageWithType(CHATKEYBOARD_MSG_CLOSE, params);
 	}
 
-	@Override
+    public void getInputBarHeight(String[] params) {
+        sendMessageWithType(CHATKEYBOARD_MSG_GET_INPUTBAR_HEIGHT, params);
+    }
+
+    public int dp2px(Context context, float dp) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dp * scale + 0.5f);
+    }
+
+    @Override
 	protected boolean clean() {
 		close(null);
 		return false;

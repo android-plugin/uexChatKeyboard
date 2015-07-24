@@ -45,8 +45,11 @@
 	 		}
 	 		uexChatKeyboard.onVoiceAction = function(json){
 	 		}
+	 		uexChatKeyboard.cbGetInputBarHeight = alertHeight;
 	 	}
-
+		function alertHeight(info){
+			alert(info);
+		}
 		function openChatKeyboard(){
 		    var jsonstr ='{"emojicons":"res://emojicons/emojicons.xml","shares":"res://shares/shares.xml","placeHold":"请输入内容","touchDownImg":"res://3.png","dragOutsideImg":"res://4.png","textColor":"#FFF","textSize":"15.5"}';
     		uexChatKeyboard.open(jsonstr);
@@ -54,6 +57,9 @@
 		
 		function closeChatKeyboard(){
     		uexChatKeyboard.close();
+		}
+		function getHeight() {
+			uexChatKeyboard.getInputBarHeight();
 		}
 	</script>
 </head>
@@ -69,6 +75,7 @@
 			<div class="consj">
 				<input type="button" value="打开" onclick="openChatKeyboard();">
 				<input type="button" value="关闭" onclick="closeChatKeyboard();">
+				<input type="button" value="showHeight" onclick="getHeight();">
 	        </div>
 	    </div>
 	</div>
