@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import org.json.JSONObject;
+import org.json.JSONStringer;
 import org.xmlpull.v1.XmlPullParser;
 import org.zywx.wbpalmstar.base.BUtility;
 
@@ -74,6 +75,8 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 	private ViewPager mSharesPager;
 	private LinearLayout mSharesIndicator;
 	private boolean isKeyBoardVisible;
+	private boolean isPagerLayoutShow;
+	private int isNeedCallbackT = 0;
 	private String mEmojiconsDeletePath;
 	private ArrayList<String> mEmojiconsPath = new ArrayList<String>();
 	private ArrayList<String> mEmojiconsText = new ArrayList<String>();
@@ -687,6 +690,8 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 						int screenHeight = parentLayout.getRootView()
 								.getHeight();
 						int heightDifference = screenHeight - (r.bottom);
+						boolean isKeyBoardChange = isKeyBoardVisible;
+						boolean isPagerLayoutShowChange = isPagerLayoutShow;
 						if (heightDifference > 100) {
 							isKeyBoardVisible = true;
 							if (!mEditText.isFocused()) {
@@ -697,8 +702,40 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 									}
 								}, 100);
 							}
+							//弹出键盘的时候,判断下俩者有弹出状态则设置隐藏  2015-08-12
+							if(mPagerLayout.isShown()){
+								mPagerLayout.setVisibility(View.GONE);
+								isNeedCallbackT = -1;
+							}
 						} else {
 							isKeyBoardVisible = false;
+						}
+						isPagerLayoutShow = mPagerLayout.isShown() ? true : false;
+						//添加键盘弹出和隐藏的回调  2015-08-12
+						boolean isChange = (isKeyBoardChange != isKeyBoardVisible) ^ (isPagerLayoutShowChange != isPagerLayoutShow);
+						Log.i(TAG, "isNeedCallbackT : " + isNeedCallbackT + "  isChange:" + isChange + "  keyboardChange:" + (isKeyBoardChange != isKeyBoardVisible) + "  pager:" + (isPagerLayoutShowChange != isPagerLayoutShow ));
+						if (isChange && isNeedCallbackT >= 0) {
+							if (mUexBaseObj != null) {
+								JSONObject jsonObject = new JSONObject();
+								try {
+									jsonObject
+											.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SHOW_STATUS,
+													(isKeyBoardVisible || mPagerLayout.isShown() ? 1 : 0));
+									String js = EUExChatKeyboard.SCRIPT_HEADER
+											+ "if("
+											+ EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_KEYBOARDSHOW
+											+ "){"
+											+ EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_KEYBOARDSHOW
+											+ "('" + jsonObject.toString()
+											+ "');}";
+									mUexBaseObj.onCallback(js);
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}//end mUexBaseject
+						}//end isChange
+						if(isNeedCallbackT < 0){
+							isNeedCallbackT++;
 						}
 					}
 				});
@@ -717,6 +754,7 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 			toggleBtnVoice();
 		} else if (id == CRes.plugin_chatkeyboard_edit_input) {
 			if (mPagerLayout.isShown()) {
+				isNeedCallbackT = -2;
 				mPagerLayout.setVisibility(View.GONE);
 			}
 		}
@@ -725,6 +763,7 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 	private void toggleBtnEmojicon(boolean visible) {
 		if (visible) {
 			if (isKeyBoardVisible) {
+				isNeedCallbackT = -2;
 				mInputManager.toggleSoftInputFromWindow(
 						mEditText.getWindowToken(),
 						InputMethodManager.SHOW_FORCED, 0);
@@ -740,6 +779,7 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 			}, 200);
 		} else {
 			if (!isKeyBoardVisible) {
+				isNeedCallbackT = -2;
 				mInputManager.toggleSoftInputFromWindow(
 						mEditText.getWindowToken(),
 						InputMethodManager.SHOW_FORCED, 0);
@@ -747,7 +787,7 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 			mEmojiconsLayout.setVisibility(View.GONE);
 			mPagerLayout.setVisibility(View.GONE);
 		}
-
+		
         mEditText
                 .setOnFocusChangeListener(new android.view.View.OnFocusChangeListener()
                 {
@@ -771,6 +811,7 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 	private void toggleBtnAdd(boolean visible) {
 		if (visible) {
 			if (isKeyBoardVisible) {
+				isNeedCallbackT = -2;
 				mInputManager.toggleSoftInputFromWindow(
 						mEditText.getWindowToken(),
 						InputMethodManager.SHOW_FORCED, 0);
@@ -778,6 +819,12 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 			new Handler().postDelayed(new Runnable() {
 				@Override
 				public void run() {
+					//由于延迟导致的可能会同时存在的问题  2015-08-12
+					if (isKeyBoardVisible) {
+						mInputManager.toggleSoftInputFromWindow(
+								mEditText.getWindowToken(),
+								InputMethodManager.SHOW_FORCED, 0);
+					}
 					mPagerLayout.setVisibility(View.VISIBLE);
 					mSharesLayout.setVisibility(View.VISIBLE);
 					mEmojiconsLayout.setVisibility(View.GONE);
@@ -789,6 +836,7 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 			}, 200);
 		} else {
 			if (!isKeyBoardVisible) {
+				isNeedCallbackT = -2;
 				mInputManager.toggleSoftInputFromWindow(
 						mEditText.getWindowToken(),
 						InputMethodManager.SHOW_FORCED, 0);
@@ -816,6 +864,7 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 	}
 
 	private void toggleBtnSend() {
+		//TODO send callback
 		Log.i(TAG, " toggleBtnSend mEditText " + mEditText.getText().toString());
 		if (mUexBaseObj != null) {
 			JSONObject jsonObject = new JSONObject();
@@ -825,8 +874,8 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 								mEditText.getText().toString());
 				String js = EUExChatKeyboard.SCRIPT_HEADER + "if("
 						+ EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_COMMIT + "){"
-						+ EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_COMMIT + "('"
-						+ jsonObject.toString() + "');}";
+						+ EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_COMMIT + "("
+						+ jsonObject.toString() + ");}";
 				mUexBaseObj.onCallback(js);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -855,6 +904,7 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 			}, 200);
 		} else {
 			if (!isKeyBoardVisible) {
+				mEditText.requestFocus();
 				mInputManager.toggleSoftInputFromWindow(
 						mEditText.getWindowToken(),
 						InputMethodManager.SHOW_FORCED, 0);
