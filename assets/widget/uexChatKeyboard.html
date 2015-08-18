@@ -38,14 +38,34 @@
 	 			alert(data);
 	 		}
 	 		uexChatKeyboard.onCommit = function(json){
-	 			alert("onCommit "+json);
+	 			alert("onCommit:"+json);
+	 			try{
+	 				//JSON.parse无法识别\n eval可以识别这两个符号
+					//var msg = JSON.parse(json);
+	 				var msg = eval("("+json+")");
+	 				alert("Text:" + msg.emojiconsText );
+	 			}catch(err){
+	 				//监测如果有回车符输入或者其他字符导致的问题,JSON.parse会出问题。可以用这种方式临时获取正确结果。3.0.8之后可以使用onCommitJson
+	 				var jsonEnd = json.lastIndexOf('"}');
+	 				var myStr = json.substring(18,jsonEnd);
+	 				alert("myStr:" + myStr );
+	 			}
+	 			//uexChatKeyboard.hideKeyboard();
+	 		}
+	 		uexChatKeyboard.onCommitJson = function(json){
+	 			alert("onCommitJson:"+json.emojiconsText);
 	 		}
 	 		uexChatKeyboard.onShareMenuItem = function(json){
 	 			alert("onShareMenuItem "+json);
+	 			uexChatKeyboard.hideKeyboard();
 	 		}
 	 		uexChatKeyboard.onVoiceAction = function(json){
 	 		}
 	 		uexChatKeyboard.cbGetInputBarHeight = alertHeight;
+	 		
+	 		uexChatKeyboard.onKeyBoardShow = function(json){
+	 			alert("onKeyBoardShow:"+json);
+	 		}
 	 	}
 		function alertHeight(info){
 			alert(info);

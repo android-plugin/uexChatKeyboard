@@ -864,7 +864,7 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 	}
 
 	private void toggleBtnSend() {
-		//TODO send callback
+		//TODO send callback String
 		Log.i(TAG, " toggleBtnSend mEditText " + mEditText.getText().toString());
 		if (mUexBaseObj != null) {
 			JSONObject jsonObject = new JSONObject();
@@ -874,15 +874,37 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 								mEditText.getText().toString());
 				String js = EUExChatKeyboard.SCRIPT_HEADER + "if("
 						+ EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_COMMIT + "){"
-						+ EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_COMMIT + "("
+						+ EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_COMMIT + "('"
+						+ jsonObject.toString() + "');}";
+				mUexBaseObj.onCallback(js);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		toggleBtnSendJson();
+		mEditText.setText(null);
+	}
+	
+	private void toggleBtnSendJson() {
+		//TODO send callback json
+		if (mUexBaseObj != null) {
+			JSONObject jsonObject = new JSONObject();
+			try {
+				jsonObject
+						.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS_TEXT,
+								mEditText.getText().toString());
+				String js = EUExChatKeyboard.SCRIPT_HEADER + "if("
+						+ EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_COMMIT_JSON + "){"
+						+ EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_COMMIT_JSON + "("
 						+ jsonObject.toString() + ");}";
 				mUexBaseObj.onCallback(js);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		mEditText.setText(null);
 	}
+	
+	
 
 	private void toggleBtnVoice() {
 		if (mBtnVoiceInput.getVisibility() == View.GONE) {
