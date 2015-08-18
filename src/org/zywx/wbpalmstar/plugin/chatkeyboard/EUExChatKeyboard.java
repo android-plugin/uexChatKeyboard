@@ -222,6 +222,26 @@ public class EUExChatKeyboard extends EUExBase implements Parcelable {
     public void getInputBarHeight(String[] params) {
         sendMessageWithType(CHATKEYBOARD_MSG_GET_INPUTBAR_HEIGHT, params);
     }
+    
+    /**
+     * 隐藏键盘的接口
+     * @param params
+     */
+    public void hideKeyboard(String[] params){
+    	((Activity)mContext).runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				String activityId = CHATKEYBOARD_ACTIVITY_ID
+						+ EUExChatKeyboard.this.hashCode();
+		    	Activity activity = mgr.getActivity(activityId);
+		        if (activity != null
+		                && activity instanceof ACEChatKeyboardActivity) {
+		            ((ACEChatKeyboardActivity) activity).outOfViewTouch();
+		        }
+			}
+		});
+    }
 
     public int dp2px(Context context, float dp) {
         final float scale = context.getResources().getDisplayMetrics().density;
