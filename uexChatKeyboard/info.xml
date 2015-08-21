@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <uexplugins>
     <plugin
-        uexName="uexChatKeyboard" version="3.0.7" build="7">
-        <info>7:添加获取输入框高度的接口</info>
+        uexName="uexChatKeyboard" version="3.0.8" build="8">
+        <info>8:添加收回键盘接口;添加键盘状态的回调接口;部分代码的逻辑优化;添加onCommitJson回调,解决输入特殊字符的问题;</info>
+        <build>7:添加获取输入框高度的接口</build>
         <build>6:修复点击表情，再点击空白区域，再点击输入框时撑满屏幕的问题</build>
         <build>5:修复点击输入框再点击物理返回键，直接退出插件问题</build>
         <build>4:修改open接口</build>
