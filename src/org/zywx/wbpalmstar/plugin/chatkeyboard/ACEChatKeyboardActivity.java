@@ -694,14 +694,6 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 						boolean isPagerLayoutShowChange = isPagerLayoutShow;
 						if (heightDifference > 100) {
 							isKeyBoardVisible = true;
-							if (!mEditText.isFocused()) {
-								new Handler().postDelayed(new Runnable() {
-									@Override
-									public void run() {
-										mEditText.requestFocus();
-									}
-								}, 100);
-							}
 							//弹出键盘的时候,判断下俩者有弹出状态则设置隐藏  2015-08-12
 							if(mPagerLayout.isShown()){
 								mPagerLayout.setVisibility(View.GONE);
