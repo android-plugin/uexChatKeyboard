@@ -97,11 +97,11 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 	private static int NUMBER_OF_SHARES;
 	private static int NUMBER_OF_SHARES_PER_PAGE = 8;
 	private static int TIMER_HANDLER_MESSAGE_WHAT = 0;
+    private int mInputMode = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.i(TAG, " onCreate ");
 		CRes.init(getApplication());
 		Intent intent = getIntent();
 		getExtraFromIntent(intent);
@@ -166,6 +166,25 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 
 		initPagerIndicator();
 		checkKeyboardHeight(mParentLayout);
+
+        switch (mInputMode){
+            case EChatKeyboardUtils.INPUT_MODE_TEXT:
+                mBtnVoice.setSelected(false);
+                mBtnVoiceInput.setVisibility(View.GONE);
+                mEditLayout.setVisibility(View.VISIBLE);
+                mEmojiconsLayout.setVisibility(View.GONE);
+                mSharesLayout.setVisibility(View.GONE);
+                mPagerLayout.setVisibility(View.GONE);
+                break;
+            case EChatKeyboardUtils.INPUT_MODE_VOICE:
+                mBtnVoice.setSelected(true);
+                mBtnVoiceInput.setVisibility(View.VISIBLE);
+                mEditLayout.setVisibility(View.GONE);
+                mEmojiconsLayout.setVisibility(View.GONE);
+                mSharesLayout.setVisibility(View.GONE);
+                mPagerLayout.setVisibility(View.GONE);
+                break;
+        }
 	}
 
 	private void getExtraFromIntent(Intent intent) {
@@ -200,6 +219,11 @@ public class ACEChatKeyboardActivity extends FragmentActivity implements
 			dragOutsideImg = BUtility.F_Widget_RES_path + dragOutsideImg;
 			mDragOutsideImg = mUexBaseObj.getBitmap(dragOutsideImg);
 		}
+
+        if (intent.hasExtra(EChatKeyboardUtils.CHATKEYBOARD_EXTRA_INPUT_MODE)){
+            mInputMode = intent.getIntExtra(
+                    EChatKeyboardUtils.CHATKEYBOARD_EXTRA_INPUT_MODE, 0);
+        }
 	}
 
 	@Override

@@ -9,6 +9,7 @@ public class EChatKeyboardUtils {
 	public final static String CHATKEYBOARD_EXTRA_DRAGOUTSIDEIMG = "org.zywx.wbpalmstar.plugin.uexchatkeyboard.CHATKEYBOARD_EXTRA_DRAGOUTSIDEIMG";
 	public final static String CHATKEYBOARD_EXTRA_TEXTCOLOR = "org.zywx.wbpalmstar.plugin.uexchatkeyboard.CHATKEYBOARD_EXTRA_TEXTCOLOR";
 	public final static String CHATKEYBOARD_EXTRA_TEXTSIZE = "org.zywx.wbpalmstar.plugin.uexchatkeyboard.CHATKEYBOARD_EXTRA_TEXTSIZE";
+    public final static String CHATKEYBOARD_EXTRA_INPUT_MODE = "org.zywx.wbpalmstar.plugin.uexchatkeyboard.CHATKEYBOARD_EXTRA_INPUT_MODE";
 
 	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS = "emojicons";
 	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SHARES = "shares";
@@ -17,6 +18,7 @@ public class EChatKeyboardUtils {
 	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_DRAGOUTSIDEIMG = "dragOutsideImg";
 	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TEXTCOLOR = "textColor";
 	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TEXTSIZE = "textSize";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_INPUT_MODE = "inputMode";
 	public static final String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS_PATH = "emojiconsPath";
 	public static final String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS_TEXT = "emojiconsText";
 	public static final String CHATKEYBOARD_PARAMS_JSON_KEY_VOICE_STATUS = "status";
@@ -30,4 +32,7 @@ public class EChatKeyboardUtils {
 	public final static String CHATKEYBOARD_FUN_ON_KEYBOARDSHOW = "uexChatKeyboard.onKeyBoardShow";
 	//添加新的回调,将数据以直接json的形式回调给前端; @Note 2015-08-18
 	public final static String CHATKEYBOARD_FUN_ON_COMMIT_JSON = "uexChatKeyboard.onCommitJson";
+
+    public final static int INPUT_MODE_TEXT = 0;
+    public final static int INPUT_MODE_VOICE = 1;
 }

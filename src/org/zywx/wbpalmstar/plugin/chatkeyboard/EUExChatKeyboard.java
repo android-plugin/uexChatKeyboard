@@ -175,6 +175,14 @@ public class EUExChatKeyboard extends EUExBase implements Parcelable {
 			intent.putExtra(EChatKeyboardUtils.CHATKEYBOARD_EXTRA_TEXTSIZE,
 					Float.parseFloat(textSize));
 		}
+        boolean hasInputMode = json
+                .has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INPUT_MODE);
+        if (hasInputMode){
+            String inputMode = json
+                    .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INPUT_MODE);
+            intent.putExtra(EChatKeyboardUtils.CHATKEYBOARD_EXTRA_INPUT_MODE,
+                    Integer.valueOf(inputMode));
+        }
 		return intent;
 	}
 

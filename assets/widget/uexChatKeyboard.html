@@ -71,8 +71,17 @@
 			alert(info);
 		}
 		function openChatKeyboard(){
-		    var jsonstr ='{"emojicons":"res://emojicons/emojicons.xml","shares":"res://shares/shares.xml","placeHold":"请输入内容","touchDownImg":"res://3.png","dragOutsideImg":"res://4.png","textColor":"#FFF","textSize":"15.5"}';
-    		uexChatKeyboard.open(jsonstr);
+		    var jsonstr ={
+		        emojicons:"res://emojicons/emojicons.xml",
+		        shares:"res://shares/shares.xml",
+		        placeHold:"请输入内容",
+		        touchDownImg:"res://3.png",
+		        dragOutsideImg:"res://4.png",
+		        textColor:"#FFF",
+		        textSize:"15.5",
+		        inputMode:0
+		    };
+    		uexChatKeyboard.open(JSON.stringify(jsonstr));
 		}
 		
 		function closeChatKeyboard(){
