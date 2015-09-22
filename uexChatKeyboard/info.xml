@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <uexplugins>
     <plugin
-        uexName="uexChatKeyboard" version="3.0.10" build="10">
-        <info>10:open接口新增参数inputMode默认输入方式</info>
+        uexName="uexChatKeyboard" version="3.0.11" build="11">
+        <info>11:去掉LocalActivityManager</info>
+        <build>10:open接口新增参数inputMode默认输入方式</build>
         <build>9:修改EditText和webview中的输入框抢焦点问题</build>
         <build>8:添加收回键盘接口;添加键盘状态的回调接口;部分代码的逻辑优化;添加onCommitJson回调,解决输入特殊字符的问题;</build>
         <build>7:添加获取输入框高度的接口</build>

@@ -29,7 +29,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.zywx.wbpalmstar.plugin.chatkeyboard.ACEChatKeyboardActivity"
+            android:name="org.zywx.wbpalmstar.plugin.chatkeyboard.ACEChatKeyboardView"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
