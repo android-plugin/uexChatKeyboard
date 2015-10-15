@@ -949,7 +949,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
 		public void handleMessage(Message msg) {
 			if (msg.what == TIMER_HANDLER_MESSAGE_WHAT) {
 				mRecordTimes.setText(msg.arg1+"\"");
-				if (msg.arg1 > 59) {
+				if (msg.arg1 > 15) {
 					completeRecord();
 					jsonVoiceActionCallback(1);
 				}
