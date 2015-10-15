@@ -952,6 +952,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
 				if (msg.arg1 > 15) {
 					completeRecord();
 					jsonVoiceActionCallback(1);
+					return;
 				}
 				Message message = new Message();
 				message.what = msg.what;
