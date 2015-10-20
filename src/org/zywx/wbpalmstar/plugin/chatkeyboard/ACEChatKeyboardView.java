@@ -129,18 +129,15 @@ public class ACEChatKeyboardView extends LinearLayout implements
 
         mBtnEmojicon = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_emojicon);
         mBtnEmojicon.setOnClickListener(this);
+        mBtnEmojicon.setVisibility(View.GONE);
         mEditText = (EditText) findViewById(CRes.plugin_chatkeyboard_edit_input);
         mEditText.addTextChangedListener(this);
         mEditText.setOnClickListener(this);
-        if (intent
-                .hasExtra(EChatKeyboardUtils.CHATKEYBOARD_EXTRA_PLACEHOLD)) {
-            String hint = intent
-                    .getStringExtra(EChatKeyboardUtils.CHATKEYBOARD_EXTRA_PLACEHOLD);
-            mEditText.setHint(hint);
-        }
+        mEditText.setHint("编辑信息（15字以内）");
 
         mBtnSend = (Button) findViewById(CRes.plugin_chatkeyboard_btn_send);
         mBtnSend.setOnClickListener(this);
+        mBtnSend.setClickable(false);
         mBtnAdd = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_add);
         mBtnAdd.setOnClickListener(this);
         mBtnVoice = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_voice);
@@ -669,10 +666,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
 
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
-		mBtnSend.setVisibility(mEditText.getText().length() != 0 ? View.VISIBLE
-				: View.GONE);
-		mBtnAdd.setVisibility(mEditText.getText().length() == 0 ? View.VISIBLE
-				: View.GONE);
+        mBtnSend.setClickable(mEditText.getText().length() != 0);
 	}
 
 	@Override
@@ -914,6 +908,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
 					mBtnVoiceInput.setVisibility(View.VISIBLE);
 					mEditLayout.setVisibility(View.GONE);
 					mEmojiconsLayout.setVisibility(View.GONE);
+                    mBtnSend.setVisibility(View.GONE);
 					mSharesLayout.setVisibility(View.GONE);
 					mPagerLayout.setVisibility(View.GONE);
 				}
@@ -925,6 +920,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
 						mEditText.getWindowToken(),
 						InputMethodManager.SHOW_FORCED, 0);
 			}
+            mBtnSend.setVisibility(View.VISIBLE);
 			mBtnVoice.setSelected(false);
 			mBtnVoiceInput.setVisibility(View.GONE);
 			mEditLayout.setVisibility(View.VISIBLE);
@@ -982,7 +978,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
 		((MarginLayoutParams) viewParams).setMargins((int)(0.65f * imageWidth), (int)(0.55f * imageHeight), 0, 0);
 		mRecordTimes.setLayoutParams(viewParams);
 		mRecordTimes.setVisibility(View.VISIBLE);
-		mBtnVoiceInput.setText("松开 结束");
+		mBtnVoiceInput.setText("松开 发送");
 		mRecordTipsLayout.setVisibility(View.VISIBLE);
 	}
 	

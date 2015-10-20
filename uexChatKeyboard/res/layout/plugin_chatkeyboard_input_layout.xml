@@ -69,12 +69,13 @@
         android:text="发送"
         android:textColor="@android:color/white"
         android:textSize="12sp"
-        android:visibility="gone" />
+        android:visibility="visible" />
 
     <ImageButton
         android:id="@+id/plugin_chatkeyboard_btn_add"
         android:layout_width="40dip"
         android:layout_height="33dip"
+        android:visibility="gone"
         android:layout_marginLeft="6dip"
         android:background="@android:color/transparent"
         android:src="@drawable/plugin_chatkeyboard_btn_add_normal" />
