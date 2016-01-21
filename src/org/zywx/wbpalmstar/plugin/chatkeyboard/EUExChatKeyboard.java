@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
-import android.os.Parcel;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -22,7 +21,6 @@ import org.zywx.wbpalmstar.engine.universalex.EUExBase;
 public class EUExChatKeyboard extends EUExBase{
 
 	public static final String CHATKEYBOARD_FUN_PARAMS_KEY = "chatKeyboardFunParamsKey";
-	public static final String CHATKEYBOARD_ACTIVITY_ID = "chatKeyboardActivityID";
     static final String func_on_callback = "javascript:uexChatKeyboard.cbGetInputBarHeight";
 
 	public static final int CHATKEYBOARD_MSG_OPEN = 0;
@@ -66,7 +64,7 @@ public class EUExChatKeyboard extends EUExBase{
         if (mChatKeyboardView==null){
             return;
         }
-        mBrwView.removeViewFromCurrentWindow(mChatKeyboardView);
+        removeViewFromCurrentWindow(mChatKeyboardView);
         mChatKeyboardView.onDestroy();
         mChatKeyboardView=null;
 	}
@@ -75,8 +73,6 @@ public class EUExChatKeyboard extends EUExBase{
         String[] params = msg.getData().getStringArray(
                 CHATKEYBOARD_FUN_PARAMS_KEY);
         try {
-            String activityId = CHATKEYBOARD_ACTIVITY_ID
-                    + EUExChatKeyboard.this.hashCode();
             if (mChatKeyboardView != null) {
                 return;
             }
@@ -87,7 +83,7 @@ public class EUExChatKeyboard extends EUExBase{
                     dm.widthPixels, RelativeLayout.LayoutParams.WRAP_CONTENT);
             JSONObject jsonObject=new JSONObject(params[0]);
             lp.bottomMargin=jsonObject.optInt("bottom",0);
-            addView2CurrentWindow(activityId, mChatKeyboardView, lp);
+            addView2CurrentWindow(mChatKeyboardView, lp);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -154,6 +150,46 @@ public class EUExChatKeyboard extends EUExBase{
 			intent.putExtra(EChatKeyboardUtils.CHATKEYBOARD_EXTRA_TEXTSIZE,
 					Float.parseFloat(textSize));
 		}
+		boolean hasSendBtnText = json
+                .has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_TEXT);
+        if (hasSendBtnText){
+            String sendBtnText = json
+                    .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_TEXT);
+            intent.putExtra(EChatKeyboardUtils.CHATKEYBOARD_EXTRA_SEND_BTN_TEXT,
+            		sendBtnText);
+        }
+        boolean hasSendBtnTextSize = json
+                .has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_TEXTSIZE);
+        if (hasSendBtnTextSize){
+            String sendBtnTextSize = json
+                    .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_TEXTSIZE);
+            intent.putExtra(EChatKeyboardUtils.CHATKEYBOARD_EXTRA_SEND_BTN_TEXTSIZE,
+            		Float.parseFloat(sendBtnTextSize));
+        }
+		boolean hasSendBtnTextColor = json
+                .has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_TEXTCOLOR);
+        if (hasSendBtnTextColor){
+            String sendBtnTextColor = json
+                    .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_TEXTCOLOR);
+            intent.putExtra(EChatKeyboardUtils.CHATKEYBOARD_EXTRA_SEND_BTN_TEXTCOLOR,
+            		BUtility.parseColor(sendBtnTextColor));
+        }
+        boolean hasSendBtnbgColorUp = json
+                .has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_BG_COLOR_UP);
+        if (hasSendBtnbgColorUp){
+            String sendBtnbgColorUp = json
+                    .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_BG_COLOR_UP);
+            intent.putExtra(EChatKeyboardUtils.CHATKEYBOARD_EXTRA_SEND_BTN_BG_COLOR_UP,
+            		BUtility.parseColor(sendBtnbgColorUp));
+        }
+        boolean hasSendBtnbgColorDown = json
+                .has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_BG_COLOR_DOWN);
+        if (hasSendBtnbgColorDown){
+            String sendBtnbgColorDown = json
+                    .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_BG_COLOR_DOWN);
+            intent.putExtra(EChatKeyboardUtils.CHATKEYBOARD_EXTRA_SEND_BTN_BG_COLOR_DOWN,
+            		BUtility.parseColor(sendBtnbgColorDown));
+        }
         boolean hasInputMode = json
                 .has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INPUT_MODE);
         if (hasInputMode){
@@ -165,7 +201,7 @@ public class EUExChatKeyboard extends EUExBase{
 		return intent;
 	}
 
-	private void addView2CurrentWindow(final String activityId, final View child,
+	private void addView2CurrentWindow(final View child,
 			RelativeLayout.LayoutParams parms) {
         int l = (int) (parms.leftMargin);
         int t = (int) (parms.topMargin);
