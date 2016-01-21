@@ -10,6 +10,11 @@ public class EChatKeyboardUtils {
 	public final static String CHATKEYBOARD_EXTRA_TEXTCOLOR = "org.zywx.wbpalmstar.plugin.uexchatkeyboard.CHATKEYBOARD_EXTRA_TEXTCOLOR";
 	public final static String CHATKEYBOARD_EXTRA_TEXTSIZE = "org.zywx.wbpalmstar.plugin.uexchatkeyboard.CHATKEYBOARD_EXTRA_TEXTSIZE";
     public final static String CHATKEYBOARD_EXTRA_INPUT_MODE = "org.zywx.wbpalmstar.plugin.uexchatkeyboard.CHATKEYBOARD_EXTRA_INPUT_MODE";
+    public final static String CHATKEYBOARD_EXTRA_SEND_BTN_TEXT = "org.zywx.wbpalmstar.plugin.uexchatkeyboard.CHATKEYBOARD_EXTRA_SEND_TEXT";
+    public final static String CHATKEYBOARD_EXTRA_SEND_BTN_TEXTSIZE = "org.zywx.wbpalmstar.plugin.uexchatkeyboard.CHATKEYBOARD_EXTRA_SEND_TEXTSIZE";
+    public final static String CHATKEYBOARD_EXTRA_SEND_BTN_TEXTCOLOR = "org.zywx.wbpalmstar.plugin.uexchatkeyboard.CHATKEYBOARD_EXTRA_SEND_TEXTCOLOR";
+    public final static String CHATKEYBOARD_EXTRA_SEND_BTN_BG_COLOR_UP = "org.zywx.wbpalmstar.plugin.uexchatkeyboard.CHATKEYBOARD_EXTRA_SEND_BG_COLOR_UP";
+    public final static String CHATKEYBOARD_EXTRA_SEND_BTN_BG_COLOR_DOWN = "org.zywx.wbpalmstar.plugin.uexchatkeyboard.CHATKEYBOARD_EXTRA_SEND_BG_COLOR_DOWN";
 
 	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS = "emojicons";
 	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SHARES = "shares";
@@ -19,6 +24,11 @@ public class EChatKeyboardUtils {
 	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TEXTCOLOR = "textColor";
 	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TEXTSIZE = "textSize";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_INPUT_MODE = "inputMode";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_TEXT = "sendBtnText";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_TEXTSIZE = "sendBtnTextSize";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_TEXTCOLOR = "sendBtnTextColor";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_BG_COLOR_UP = "sendBtnbgColorUp";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_BG_COLOR_DOWN = "sendBtnbgColorDown";
 	public static final String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS_PATH = "emojiconsPath";
 	public static final String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS_TEXT = "emojiconsText";
 	public static final String CHATKEYBOARD_PARAMS_JSON_KEY_VOICE_STATUS = "status";
