@@ -112,9 +112,8 @@ public class EUExChatKeyboard extends EUExBase{
 			JSONObject json = new JSONObject(params[0]);
 			mChatKeyboardView = new ACEChatKeyboardView(mContext, json, this);
             
-            DisplayMetrics dm = mContext.getResources().getDisplayMetrics();
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-                    dm.widthPixels, RelativeLayout.LayoutParams.MATCH_PARENT);
+            		RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 			// lp.bottomMargin=json.optInt("bottom",0);
             addView2CurrentWindow(mChatKeyboardView, lp);
         } catch (Exception e) {

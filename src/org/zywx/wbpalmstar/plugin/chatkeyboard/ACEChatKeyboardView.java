@@ -129,6 +129,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
 	public ACEChatKeyboardView(Context context,JSONObject params,EUExChatKeyboard uexBaseObj) {
 		super(context);
 		this.setOrientation(VERTICAL);
+		this.setGravity(Gravity.BOTTOM);
 		this.mUexBaseObj = uexBaseObj;
         CRes.init(getContext().getApplicationContext());
         mInputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -141,7 +142,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
 		LayoutParams lp2 = new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
 		lp2.gravity = Gravity.BOTTOM;
 		
-		this.addView(mOutOfTouchView,lp);
+		//this.addView(mOutOfTouchView,lp);
 		this.addView(inputLayout,lp2);
 		
 		initView();
@@ -368,7 +369,6 @@ public class ACEChatKeyboardView extends LinearLayout implements
 			public void endTransition(LayoutTransition transition, ViewGroup container,
 					View view, int transitionType) {
 				if (view.getId() == CRes.plugin_chatkeyboard_parent_layout && transitionType == LayoutTransition.CHANGE_APPEARING ) {
-					//Parent view height change ,so input and pager show together.
 					goScroll(0);
 					jsonKeyBoardShowCallback(isKeyBoardVisible || mPagerLayout.isShown() ? 1 : 0);
 				} else if (view.getId() == CRes.plugin_chatkeyboard_pager_layout && transitionType == LayoutTransition.DISAPPEARING) {
@@ -383,9 +383,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
 
 	public void onDestroy() {
 		try {
-			if (isKeyBoardVisible) {
-				mInputManager.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
-			}
+			outOfViewTouch();
 			if(mDragOutsideImg != null)
 				mDragOutsideImg.getBitmap().recycle();
 			if(mTouchDownImg != null)
@@ -1281,6 +1279,9 @@ public class ACEChatKeyboardView extends LinearLayout implements
 		if(!isKeyboardChange){
 			Log.i(TAG, "↑");
 			isKeyboardChange = true;
+			if(mUexBaseObj == null || mUexBaseObj.mBrwView == null){
+				return;
+			}
 			LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mUexBaseObj.mBrwView
 					.getLayoutParams();
 			int tempHeight = lp.height;
@@ -1293,9 +1294,19 @@ public class ACEChatKeyboardView extends LinearLayout implements
 			}
 			int keyboardHeight = mPagerLayout.isShown() ? mPagerLayout.getHeight() : 0;
 			int inputHeight = isKeyBoardVisible || mPagerLayout.isShown() ? EUExUtil.dipToPixels(50) : 0;
+			int bottomPoint = ((View)mUexBaseObj.mBrwView.getParent()).getBottom();
+			int bottomMargin = mParentLayout.getHeight() - bottomPoint;
+			Log.i(TAG, "bottomMargin : " + bottomMargin + "   " + bottomPoint  + "   " + mParentLayout.getHeight() );
+			if( bottomMargin > inputHeight){
+				inputHeight = 0;
+			}
 			int screenHeight = mParentLayout.getRootView().getHeight();
 			if(mBrwViewHeight > 0 || tempHeight > screenHeight - heightDifference){
-				inputHeight = heightDifference + inputHeight;
+				if(bottomMargin + heightDifference > inputHeight){
+					inputHeight = heightDifference;
+				}else {
+					inputHeight = heightDifference + inputHeight;
+				}
 			}
 			Log.i(TAG, "Move! height:" + (tempHeight - keyboardHeight - inputHeight) + " tempHeight:" + tempHeight + " ParentkeyboardHeight:" +keyboardHeight + " inputHeight:" + inputHeight);
 			lp.height = tempHeight - keyboardHeight - inputHeight;
@@ -1308,6 +1319,9 @@ public class ACEChatKeyboardView extends LinearLayout implements
 		if(isKeyboardChange){
 			Log.i(TAG, "↓");
 			isKeyboardChange = false;
+			if(mUexBaseObj == null || mUexBaseObj.mBrwView == null){
+				return;
+			}
 			LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mUexBaseObj.mBrwView
 					.getLayoutParams();
 			lp.height = mBrwViewHeight;
