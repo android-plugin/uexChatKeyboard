@@ -18,6 +18,7 @@
 
 package org.zywx.wbpalmstar.plugin.chatkeyboard;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.zywx.wbpalmstar.engine.EBrowserView;
 import org.zywx.wbpalmstar.engine.universalex.EUExBase;
@@ -140,17 +141,22 @@ public class EUExChatKeyboard extends EUExBase{
         }
 	}
 
-    private void handleGetInputBarHeight() {
+    private int handleGetInputBarHeight() {
          //当前输入框的高度是固定的，50dp
     	int height = EUExUtil.dipToPixels(50);
-        String result = "{\"height\":" + "\"" + height + "\"}";
+		JSONObject result=new JSONObject();
+		try {
+			result.put("height",height);
+		} catch (JSONException e) {
+		}
 		String jsCallBack = SCRIPT_HEADER
 				+ "if("
 				+ EChatKeyboardUtils.CHATKEYBOARD_FUN_CB_GET_INPUTBAR_HEIGHT
 				+ "){"
 				+ EChatKeyboardUtils.CHATKEYBOARD_FUN_CB_GET_INPUTBAR_HEIGHT
-				+ "('" + result + "');}";
+				+ "('" + result.toString() + "');}";
         onCallback(jsCallBack);
+		return height;
     }
     
 	private void addView2CurrentWindow(View child,
