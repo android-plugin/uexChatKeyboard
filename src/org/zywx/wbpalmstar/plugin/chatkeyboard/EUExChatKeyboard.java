@@ -63,7 +63,7 @@ public class EUExChatKeyboard extends EUExBase {
     }
 
     private void handleClose() {
-        if (mChatKeyboardView == null) {
+        if (mChatKeyboardView == null||mBrwView==null) {
             return;
         }
         mBrwView.removeViewFromCurrentWindow(mChatKeyboardView);
