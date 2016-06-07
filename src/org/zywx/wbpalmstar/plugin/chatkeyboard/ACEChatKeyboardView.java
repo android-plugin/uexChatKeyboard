@@ -1,14 +1,5 @@
 package org.zywx.wbpalmstar.plugin.chatkeyboard;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-
-import org.json.JSONObject;
-import org.json.JSONStringer;
-import org.xmlpull.v1.XmlPullParser;
-import org.zywx.wbpalmstar.base.BUtility;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -19,10 +10,8 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -39,10 +28,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
@@ -53,8 +40,15 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+
+import org.json.JSONObject;
+import org.xmlpull.v1.XmlPullParser;
+import org.zywx.wbpalmstar.base.BUtility;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 
 public class ACEChatKeyboardView extends LinearLayout implements
 		OnPageChangeListener, TextWatcher, OnClickListener, OnTouchListener {
@@ -945,7 +939,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
 		public void handleMessage(Message msg) {
 			if (msg.what == TIMER_HANDLER_MESSAGE_WHAT) {
 				mRecordTimes.setText(msg.arg1+"\"");
-				if (msg.arg1 > 15) {
+				if (msg.arg1 > EUExChatKeyboard.smaxRecordTime) {
 					completeRecord();
 					jsonVoiceActionCallback(1);
 					return;
@@ -994,7 +988,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
 				handleRecordWhenDown();
 				Message message = new Message();
 				message.what = TIMER_HANDLER_MESSAGE_WHAT;
-				message.arg1 = 0;
+				message.arg1 = 1;
 				timerHandler.sendMessage(message);
 				jsonVoiceActionCallback(0);
 				break;

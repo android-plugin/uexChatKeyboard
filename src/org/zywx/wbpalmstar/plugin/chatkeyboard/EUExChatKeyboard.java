@@ -30,6 +30,8 @@ public class EUExChatKeyboard extends EUExBase {
     public static final int CHATKEYBOARD_MSG_GET_INPUTBAR_HEIGHT = 2;
     private ACEChatKeyboardView mChatKeyboardView;
 
+    public static int smaxRecordTime =15;
+
     public EUExChatKeyboard(Context context, EBrowserView view) {
         super(context, view);
     }
@@ -112,6 +114,10 @@ public class EUExChatKeyboard extends EUExBase {
                 .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS);
         String shares = json
                 .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SHARES);
+        int maxRecordTime=json.optInt("maxRecordTime",0);
+        if (maxRecordTime!=0){
+            smaxRecordTime =maxRecordTime;
+        }
         intent.putExtra(
                 EChatKeyboardUtils.CHATKEYBOARD_EXTRA_EMOJICONS_XML_PATH,
                 emojicons);
@@ -210,8 +216,17 @@ public class EUExChatKeyboard extends EUExBase {
         sendMessageWithType(CHATKEYBOARD_MSG_CLOSE, params);
     }
 
-    public void getInputBarHeight(String[] params) {
-        sendMessageWithType(CHATKEYBOARD_MSG_GET_INPUTBAR_HEIGHT, params);
+    public int getInputBarHeight(String[] params) {
+        //当前输入框的高度是固定的，50dp
+        int height = dp2px(mContext, 50);
+        JSONObject result = new JSONObject();
+        try {
+            result.put("height", height);
+        } catch (JSONException e) {
+        }
+        String jsCallBack = func_on_callback + "('" + result.toString() + "');";
+        onCallback(jsCallBack);
+        return height;
     }
 
     /**
