@@ -19,31 +19,31 @@
 package org.zywx.wbpalmstar.plugin.chatkeyboard;
 
 public class EChatKeyboardUtils {
-	
-	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS = "emojicons";
-	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SHARES = "shares";
-	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLD = "placeHold";
-	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TOUCHDOWNIMG = "touchDownImg";
-	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_DRAGOUTSIDEIMG = "dragOutsideImg";
-	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TEXTCOLOR = "textColor";
-	public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TEXTSIZE = "textSize";
+
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS = "emojicons";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SHARES = "shares";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLD = "placeHold";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TOUCHDOWNIMG = "touchDownImg";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_DRAGOUTSIDEIMG = "dragOutsideImg";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TEXTCOLOR = "textColor";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TEXTSIZE = "textSize";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_INPUT_MODE = "inputMode";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_TEXT = "sendBtnText";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_TEXTSIZE = "sendBtnTextSize";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_TEXTCOLOR = "sendBtnTextColor";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_BG_COLOR_UP = "sendBtnbgColorUp";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SEND_BTN_BG_COLOR_DOWN = "sendBtnbgColorDown";
-	public static final String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS_PATH = "emojiconsPath";
-	public static final String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS_TEXT = "emojiconsText";
-	public static final String CHATKEYBOARD_PARAMS_JSON_KEY_VOICE_STATUS = "status";
-	public static final String CHATKEYBOARD_PARAMS_JSON_KEY_SHOW_STATUS = "status";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS_PATH = "emojiconsPath";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS_TEXT = "emojiconsText";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_VOICE_STATUS = "status";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_SHOW_STATUS = "status";
 
-	public final static String CHATKEYBOARD_FUN_ON_COMMIT = "uexChatKeyboard.onCommit";
-	public final static String CHATKEYBOARD_FUN_ON_SHAREMENUITEM = "uexChatKeyboard.onShareMenuItem";
-	public final static String CHATKEYBOARD_FUN_ON_VOICEACTION = "uexChatKeyboard.onVoiceAction";
-	public final static String CHATKEYBOARD_FUN_ON_KEYBOARDSHOW = "uexChatKeyboard.onKeyBoardShow";
-	public final static String CHATKEYBOARD_FUN_ON_COMMIT_JSON = "uexChatKeyboard.onCommitJson";
-	public final static String CHATKEYBOARD_FUN_CB_GET_INPUTBAR_HEIGHT = "uexChatKeyboard.cbGetInputBarHeight";
+    public final static String CHATKEYBOARD_FUN_ON_COMMIT = "uexChatKeyboard.onCommit";
+    public final static String CHATKEYBOARD_FUN_ON_SHAREMENUITEM = "uexChatKeyboard.onShareMenuItem";
+    public final static String CHATKEYBOARD_FUN_ON_VOICEACTION = "uexChatKeyboard.onVoiceAction";
+    public final static String CHATKEYBOARD_FUN_ON_KEYBOARDSHOW = "uexChatKeyboard.onKeyBoardShow";
+    public final static String CHATKEYBOARD_FUN_ON_COMMIT_JSON = "uexChatKeyboard.onCommitJson";
+    public final static String CHATKEYBOARD_FUN_CB_GET_INPUTBAR_HEIGHT = "uexChatKeyboard.cbGetInputBarHeight";
 
 
     public final static int INPUT_MODE_TEXT = 0;
