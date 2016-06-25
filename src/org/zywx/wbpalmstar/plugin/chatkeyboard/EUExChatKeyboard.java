@@ -27,82 +27,81 @@ import org.zywx.wbpalmstar.engine.universalex.EUExUtil;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Message;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
-public class EUExChatKeyboard extends EUExBase{
+public class EUExChatKeyboard extends EUExBase {
 
-	private static final String TAG = "EUExChatKeyboard";
-	private static final String CHATKEYBOARD_FUN_PARAMS_KEY = "chatKeyboardFunParamsKey";
+    private static final String TAG = "EUExChatKeyboard";
+    private static final String CHATKEYBOARD_FUN_PARAMS_KEY = "chatKeyboardFunParamsKey";
 
     private static final int CHATKEYBOARD_MSG_OPEN = 0;
     private static final int CHATKEYBOARD_MSG_CLOSE = 1;
     private static final int CHATKEYBOARD_MSG_GET_INPUTBAR_HEIGHT = 2;
     private static final int CHATKEYBOARD_MSG_HIDE_KEYBOARD = 3;
-    
+
     private ACEChatKeyboardView mChatKeyboardView;
 
-	public EUExChatKeyboard(Context context, EBrowserView view) {
-		super(context, view);
-	}
+    public EUExChatKeyboard(Context context, EBrowserView view) {
+        super(context, view);
+    }
 
-	@Override
-	public void onHandleMessage(Message msg) {
-		if (msg == null) {
-			return;
-		}
-		switch (msg.what) {
-		case CHATKEYBOARD_MSG_OPEN:
-			handleOpen(msg);
-			break;
-		case CHATKEYBOARD_MSG_CLOSE:
-			handleClose();
-			break;
-		case CHATKEYBOARD_MSG_GET_INPUTBAR_HEIGHT:
-			handleGetInputBarHeight();
-			break;
-		case CHATKEYBOARD_MSG_HIDE_KEYBOARD:
-			handleHideKeyboard();
-			break;
-		default:
-			;
-		}
-	}
-	
-	public void open(String[] params) {
-		sendMessageWithType(CHATKEYBOARD_MSG_OPEN, params);
-	}
+    @Override
+    public void onHandleMessage(Message msg) {
+        if (msg == null) {
+            return;
+        }
+        switch (msg.what) {
+        case CHATKEYBOARD_MSG_OPEN:
+            handleOpen(msg);
+            break;
+        case CHATKEYBOARD_MSG_CLOSE:
+            handleClose();
+            break;
+        case CHATKEYBOARD_MSG_GET_INPUTBAR_HEIGHT:
+            handleGetInputBarHeight();
+            break;
+        case CHATKEYBOARD_MSG_HIDE_KEYBOARD:
+            handleHideKeyboard();
+            break;
+        default:
+            ;
+        }
+    }
 
-	public void close(String[] params) {
-		sendMessageWithType(CHATKEYBOARD_MSG_CLOSE, params);
-	}
+    public void open(String[] params) {
+        sendMessageWithType(CHATKEYBOARD_MSG_OPEN, params);
+    }
+
+    public void close(String[] params) {
+        sendMessageWithType(CHATKEYBOARD_MSG_CLOSE, params);
+    }
 
     public void getInputBarHeight(String[] params) {
         sendMessageWithType(CHATKEYBOARD_MSG_GET_INPUTBAR_HEIGHT, params);
     }
-    
+
     public void hideKeyboard(String[] params) {
         sendMessageWithType(CHATKEYBOARD_MSG_HIDE_KEYBOARD, params);
     }
-	
-	private void sendMessageWithType(int msgType, String[] params) {
-		if (mHandler == null) {
-			return;
-		}
-		Message msg = new Message();
-		msg.what = msgType;
-		msg.obj = this;
-		Bundle b = new Bundle();
-		b.putStringArray(CHATKEYBOARD_FUN_PARAMS_KEY, params);
-		msg.setData(b);
-		mHandler.sendMessage(msg);
-	}
-	
-	private void handleOpen(Message msg) {
+
+    private void sendMessageWithType(int msgType, String[] params) {
+        if (mHandler == null) {
+            return;
+        }
+        Message msg = new Message();
+        msg.what = msgType;
+        msg.obj = this;
+        Bundle b = new Bundle();
+        b.putStringArray(CHATKEYBOARD_FUN_PARAMS_KEY, params);
+        msg.setData(b);
+        mHandler.sendMessage(msg);
+    }
+
+    private void handleOpen(Message msg) {
         String[] params = msg.getData().getStringArray(
                 CHATKEYBOARD_FUN_PARAMS_KEY);
         if (params == null || params.length < 1) return;
@@ -110,57 +109,58 @@ public class EUExChatKeyboard extends EUExBase{
             if (mChatKeyboardView != null) {
                 return;
             }
-			JSONObject json = new JSONObject(params[0]);
-			mChatKeyboardView = new ACEChatKeyboardView(mContext, json, this);
-            
+            JSONObject json = new JSONObject(params[0]);
+            mChatKeyboardView = new ACEChatKeyboardView(mContext, json, this);
+
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-            		RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-			// lp.bottomMargin=json.optInt("bottom",0);
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.MATCH_PARENT);
+            // lp.bottomMargin=json.optInt("bottom",0);
             addView2CurrentWindow(mChatKeyboardView, lp);
         } catch (Exception e) {
             e.printStackTrace();
         }
-	}
+    }
 
-	private void handleClose() {
-        if (mChatKeyboardView==null){
+    private void handleClose() {
+        if (mChatKeyboardView == null) {
             return;
         }
         removeViewFromCurrentWindow(mChatKeyboardView);
         mChatKeyboardView.onDestroy();
-        mChatKeyboardView=null;
-	}
-	
-	/**
+        mChatKeyboardView = null;
+    }
+
+    /**
      * 隐藏键盘的接口
+     * 
      * @param params
      */
-	private void handleHideKeyboard() {
-		if (mChatKeyboardView!=null){
+    private void handleHideKeyboard() {
+        if (mChatKeyboardView != null) {
             mChatKeyboardView.outOfViewTouch();
         }
-	}
+    }
 
     private int handleGetInputBarHeight() {
-         //当前输入框的高度是固定的，50dp
-    	int height = EUExUtil.dipToPixels(50);
-		JSONObject result=new JSONObject();
-		try {
-			result.put("height",height);
-		} catch (JSONException e) {
-		}
-		String jsCallBack = SCRIPT_HEADER
-				+ "if("
-				+ EChatKeyboardUtils.CHATKEYBOARD_FUN_CB_GET_INPUTBAR_HEIGHT
-				+ "){"
-				+ EChatKeyboardUtils.CHATKEYBOARD_FUN_CB_GET_INPUTBAR_HEIGHT
-				+ "('" + result.toString() + "');}";
+        // 当前输入框的高度是固定的，50dp
+        int height = EUExUtil.dipToPixels(50);
+        JSONObject result = new JSONObject();
+        try {
+            result.put("height", height);
+        } catch (JSONException e) {
+        }
+        String jsCallBack = SCRIPT_HEADER + "if("
+                + EChatKeyboardUtils.CHATKEYBOARD_FUN_CB_GET_INPUTBAR_HEIGHT
+                + "){"
+                + EChatKeyboardUtils.CHATKEYBOARD_FUN_CB_GET_INPUTBAR_HEIGHT
+                + "('" + result.toString() + "');}";
         onCallback(jsCallBack);
-		return height;
+        return height;
     }
-    
-	private void addView2CurrentWindow(View child,
-			RelativeLayout.LayoutParams parms) {
+
+    private void addView2CurrentWindow(View child,
+            RelativeLayout.LayoutParams parms) {
         int l = (int) (parms.leftMargin);
         int t = (int) (parms.topMargin);
         int w = parms.width;
@@ -168,20 +168,20 @@ public class EUExChatKeyboard extends EUExBase{
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(w, h);
         lp.gravity = Gravity.BOTTOM;
         lp.leftMargin = l;
-        lp.bottomMargin=parms.bottomMargin;
+        lp.bottomMargin = parms.bottomMargin;
         lp.topMargin = t;
         adptLayoutParams(parms, lp);
         mBrwView.addViewToCurrentWindow(child, lp);
-	}
+    }
 
     @Override
-	protected boolean clean() {
-    	Log.i(TAG, "clean");
-		close(null);
-        if (mChatKeyboardView!=null){
+    protected boolean clean() {
+        Log.i(TAG, "clean");
+        close(null);
+        if (mChatKeyboardView != null) {
             mChatKeyboardView.onDestroy();
         }
-		return false;
-	}
+        return false;
+    }
 
 }
