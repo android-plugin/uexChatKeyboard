@@ -40,7 +40,7 @@
         android:gravity="center_vertical"
         android:orientation="horizontal" >
 
-        <EditText
+        <org.zywx.wbpalmstar.plugin.chatkeyboard.EditTextEx
             android:id="@+id/plugin_chatkeyboard_edit_input"
             android:layout_width="0dip"
             android:layout_height="40dip"
