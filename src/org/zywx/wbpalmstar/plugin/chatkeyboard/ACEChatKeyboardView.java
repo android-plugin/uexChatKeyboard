@@ -18,15 +18,6 @@
 
 package org.zywx.wbpalmstar.plugin.chatkeyboard;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-
-import org.json.JSONObject;
-import org.xmlpull.v1.XmlPullParser;
-import org.zywx.wbpalmstar.base.BUtility;
-import org.zywx.wbpalmstar.engine.universalex.EUExUtil;
-
 import android.animation.LayoutTransition;
 import android.animation.LayoutTransition.TransitionListener;
 import android.annotation.SuppressLint;
@@ -48,8 +39,10 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.Editable;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
@@ -67,13 +60,22 @@ import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.json.JSONObject;
+import org.xmlpull.v1.XmlPullParser;
+import org.zywx.wbpalmstar.base.BUtility;
+import org.zywx.wbpalmstar.engine.universalex.EUExUtil;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressLint("NewApi")
 public class ACEChatKeyboardView extends LinearLayout implements
@@ -82,7 +84,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
     private String TAG = "ACEChatKeyboardView";
     private EUExChatKeyboard mUexBaseObj;
     private View mOutOfTouchView;
-    private EditText mEditText;
+    private EditTextEx mEditText;
     private ImageButton mBtnEmojicon;
     private Button mBtnSend;
     private ImageButton mBtnAdd;
@@ -125,6 +127,8 @@ public class ACEChatKeyboardView extends LinearLayout implements
     private boolean isKeyboardChange = false;
     private int keyBoardHeight = 0;
     private int mBrwViewHeight = 0;
+    private List<String> keywords=new ArrayList<String>();
+    private int mLastAtPosition=0;
 
     public ACEChatKeyboardView(Context context, JSONObject params, EUExChatKeyboard uexBaseObj) {
         super(context);
@@ -177,7 +181,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
         mPagerLayout = (LinearLayout) findViewById(CRes.plugin_chatkeyboard_pager_layout);
 
         mEditLayout = (LinearLayout) findViewById(CRes.plugin_chatkeyboard_edit_input_layout);
-        mEditText = (EditText) findViewById(CRes.plugin_chatkeyboard_edit_input);
+        mEditText = (EditTextEx) findViewById(CRes.plugin_chatkeyboard_edit_input);
         mBtnSend = (Button) findViewById(CRes.plugin_chatkeyboard_btn_send);
         mBtnAdd = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_add);
         mBtnVoice = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_voice);
@@ -476,6 +480,25 @@ public class ACEChatKeyboardView extends LinearLayout implements
 
         Bitmap temp = BitmapFactory.decodeStream(in, null, null);
         return temp;
+    }
+
+    public void insertAfterAt(String keyword) {
+        if (TextUtils.isEmpty(keyword)){
+            return;
+        }
+        keywords.add("@"+keyword);
+        mEditText.getEditableText().insert(mLastAtPosition+1,keyword);
+        mLastAtPosition=mLastAtPosition+keyword.length();
+        updateEditTextViewWithKeyword();
+    }
+
+    public void updateEditTextViewWithKeyword(){
+        CharSequence charSequence = mEditText.getText();
+        for (String name : keywords) {
+            charSequence = Replacer.replace(charSequence, name, Html.fromHtml("<font color=\"#507daf\">" + name + "</font>"));
+        }
+        mEditText.setText(charSequence);
+        mEditText.setSelection(mLastAtPosition);
     }
 
     private class EmotjiconsPagerAdapter extends PagerAdapter {
@@ -842,6 +865,10 @@ public class ACEChatKeyboardView extends LinearLayout implements
                 : View.GONE);
         mBtnAdd.setVisibility(mEditText.getText().length() == 0 ? View.VISIBLE
                 : View.GONE);
+        if (count==1&&'@'==s.charAt(start)) {
+            mLastAtPosition=start;
+            mUexBaseObj.callBackJs(EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_AT,"");
+        }
     }
 
     @Override

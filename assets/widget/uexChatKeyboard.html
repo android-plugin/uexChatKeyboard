@@ -52,7 +52,9 @@
             uexChatKeyboard.onVoiceAction = function(json){
 
             }
-
+            uexChatKeyboard.onAt=function() {
+                uexChatKeyboard.insertAfterAt("守望宝宝");
+            }
             uexChatKeyboard.onKeyBoardShow = function(json){
                 alert("onKeyBoardShow:"+json);
                 setTimeout(function (){window.scrollTo(0, document.body.scrollHeight);},20);

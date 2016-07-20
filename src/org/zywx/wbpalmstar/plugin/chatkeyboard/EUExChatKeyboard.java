@@ -112,6 +112,10 @@ public class EUExChatKeyboard extends EUExBase {
         mHandler.sendMessage(msg);
     }
 
+    public void insertAfterAt(String[] params){
+        mChatKeyboardView.insertAfterAt(params[0]);
+    }
+
     private void handleOpen(Message msg) {
         String[] params = msg.getData().getStringArray(
                 CHATKEYBOARD_FUN_PARAMS_KEY);
