@@ -23,6 +23,7 @@ public class EChatKeyboardUtils {
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS = "emojicons";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SHARES = "shares";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLD = "placeHold";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLDER = "placeholder";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TOUCHDOWNIMG = "touchDownImg";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_DRAGOUTSIDEIMG = "dragOutsideImg";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TEXTCOLOR = "textColor";
@@ -37,6 +38,16 @@ public class EChatKeyboardUtils {
     public static final String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS_TEXT = "emojiconsText";
     public static final String CHATKEYBOARD_PARAMS_JSON_KEY_VOICE_STATUS = "status";
     public static final String CHATKEYBOARD_PARAMS_JSON_KEY_SHOW_STATUS = "status";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_HEIGHT = "height";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_INSERTTEXT = "insertText";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_INSERTTEXTS = "insertTexts";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_INSERTTEXTCOLOR = "insertTextColor";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_ISREPLACEKEYWORD = "isReplaceKeyword";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_KEYWORD = "keyword";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_KEYWORDS = "keywords";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_START = "start";
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_END = "end";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_INPUTTEXTCOLOR = "inputTextColor";
 
     public final static String CHATKEYBOARD_FUN_ON_COMMIT = "uexChatKeyboard.onCommit";
     public final static String CHATKEYBOARD_FUN_ON_SHAREMENUITEM = "uexChatKeyboard.onShareMenuItem";
@@ -44,7 +55,7 @@ public class EChatKeyboardUtils {
     public final static String CHATKEYBOARD_FUN_ON_KEYBOARDSHOW = "uexChatKeyboard.onKeyBoardShow";
     public final static String CHATKEYBOARD_FUN_ON_COMMIT_JSON = "uexChatKeyboard.onCommitJson";
     public final static String CHATKEYBOARD_FUN_CB_GET_INPUTBAR_HEIGHT = "uexChatKeyboard.cbGetInputBarHeight";
-    public final static String CHATKEYBOARD_FUN_ON_AT = "uexChatKeyboard.onAt";
+    public final static String CHATKEYBOARD_FUN_ON_INPUT_KEYWORD = "uexChatKeyboard.onInputKeyword";
 
 
     public final static int INPUT_MODE_TEXT = 0;

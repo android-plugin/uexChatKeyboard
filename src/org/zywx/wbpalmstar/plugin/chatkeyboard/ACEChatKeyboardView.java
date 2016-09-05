@@ -44,6 +44,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -67,6 +68,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.zywx.wbpalmstar.base.BUtility;
@@ -127,7 +129,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
     private boolean isKeyboardChange = false;
     private int keyBoardHeight = 0;
     private int mBrwViewHeight = 0;
-    private List<String> keywords=new ArrayList<String>();
+    private List<String> keywords = new ArrayList<String>();
     private int mLastAtPosition=0;
 
     public ACEChatKeyboardView(Context context, JSONObject params, EUExChatKeyboard uexBaseObj) {
@@ -235,11 +237,17 @@ public class ACEChatKeyboardView extends LinearLayout implements
             initShares();
             mSharesPager.setAdapter(new SharesPagerAdapter());
 
-            // placeHold
+            // placeHold @see placeholder
             if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLD)) {
-                String placehold = json
+                String placeholder = json
                         .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLD);
-                mEditText.setHint(placehold);
+                mEditText.setHint(placeholder);
+            }
+            // placeholder
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLDER)) {
+                String placeholder = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLDER);
+                mEditText.setHint(placeholder);
             }
             // touchDownImg
             if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_TOUCHDOWNIMG)) {
@@ -276,6 +284,12 @@ public class ACEChatKeyboardView extends LinearLayout implements
             }
             if (mDragOutsideImg == null) {
                 mDragOutsideImgDefaule = getResources().getDrawable(CRes.plugin_chatkeyboard_voice_cancle);
+            }
+            // textColor EditText
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INPUTTEXTCOLOR)) {
+                String textColor = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INPUTTEXTCOLOR);
+                mEditText.setTextColor(BUtility.parseColor(textColor));
             }
             // textColor mRecordTimes
             if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_TEXTCOLOR)) {
@@ -343,6 +357,13 @@ public class ACEChatKeyboardView extends LinearLayout implements
                 mInputMode = json
                         .getInt(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INPUT_MODE);
             }
+            // keywords
+            if( json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_KEYWORDS)){
+                JSONArray keywordArray = json.getJSONArray(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_KEYWORDS);
+                for (int i = 0; i < keywordArray.length(); i++) {
+                    keywords.add(keywordArray.getString(i));
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -383,6 +404,12 @@ public class ACEChatKeyboardView extends LinearLayout implements
             }
         });
         mParentLayout.setLayoutTransition(mLayoutTransition);
+    }
+    
+    public void setHint(String hint){
+        if(mEditText != null){
+            mEditText.setHint(hint);
+        }
     }
 
     public void onDestroy() {
@@ -482,19 +509,44 @@ public class ACEChatKeyboardView extends LinearLayout implements
         return temp;
     }
 
-    public void insertAfterAt(String keyword) {
-        if (TextUtils.isEmpty(keyword)){
+    public void insertTextByKeyword(String keyword,String insertText,String color,boolean isReplaceKeyword) {
+        if (TextUtils.isEmpty(keyword) || TextUtils.isEmpty(insertText)){
             return;
         }
-        keywords.add("@"+keyword);
-        mEditText.getEditableText().insert(mLastAtPosition+1,keyword);
-        mLastAtPosition=mLastAtPosition+keyword.length();
-        updateEditTextViewWithKeyword();
+        if (TextUtils.isEmpty(color)){
+            color = "#507daf";
+        }
+        Editable editable = mEditText.getText();
+        int lastAtPosition = mLastAtPosition;
+        if(editable.length() < keyword.length() || editable.length() < lastAtPosition + keyword.length()){
+            return;
+        }
+        if(!keyword.equals(editable.subSequence(lastAtPosition, lastAtPosition + keyword.length()).toString())){
+            if(!editable.toString().contains(keyword)){
+                return;
+            }
+            lastAtPosition = editable.toString().lastIndexOf(keyword);
+        }
+        if(isReplaceKeyword){
+            editable.replace(lastAtPosition, lastAtPosition + keyword.length(), Html.fromHtml("<font color=\""+ color + "\">" + insertText + "</font>"));
+        }else{
+            editable.insert(lastAtPosition + keyword.length(), Html.fromHtml("<font color=\""+ color + "\">" + insertText + "</font>"));
+        }
+        lastAtPosition += insertText.length() + (isReplaceKeyword ? 0 : keyword.length());
+        mEditText.setSelection(lastAtPosition);
     }
 
-    public void updateEditTextViewWithKeyword(){
+    /**
+     * 更新绘制所有关键字
+     * 
+     * @deprecated
+     * @see #insertAfterAt(String, String, String, boolean)
+     * @param insertTexts
+     *            包含的所有已插入的关键字(正则匹配所有)
+     */
+    public void updateEditTextViewWithKeyword(List<String> insertTexts){
         CharSequence charSequence = mEditText.getText();
-        for (String name : keywords) {
+        for (String name : insertTexts) {
             charSequence = Replacer.replace(charSequence, name, Html.fromHtml("<font color=\"#507daf\">" + name + "</font>"));
         }
         mEditText.setText(charSequence);
@@ -861,17 +913,45 @@ public class ACEChatKeyboardView extends LinearLayout implements
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        mBtnSend.setVisibility(mEditText.getText().length() != 0 ? View.VISIBLE
-                : View.GONE);
-        mBtnAdd.setVisibility(mEditText.getText().length() == 0 ? View.VISIBLE
-                : View.GONE);
-        if (count==1&&'@'==s.charAt(start)) {
-            mLastAtPosition=start;
+        try {
+            mBtnSend.setVisibility(mEditText.getText().length() != 0 ? View.VISIBLE
+                    : View.GONE);
+            mBtnAdd.setVisibility(mEditText.getText().length() == 0 ? View.VISIBLE
+                    : View.GONE);
+            if(before > 0 && count == 0){
+                //delete or replace
+                return;
+            }
+            int size = keywords.size();
+            int keywordStart = start;
+            String keyword = null;
+            for (int i = 0; i < size; i++) {
+                String keywordTemp = keywords.get(i);
+                int keywordlength = keywordTemp.length();
+                int startTemp = start + count - keywordlength;
+                if(startTemp < 0 || s.length() < keywordlength){
+                    continue;
+                }
+                String edit = s.subSequence(startTemp, startTemp + keywordlength).toString();
+                if(keywordTemp.equals(edit)){
+                    keywordStart = startTemp;
+                    keyword = keywordTemp;
+                    break;
+                }
+            }
+            if(keyword == null){
+                return;
+            }
+            mLastAtPosition = keywordStart;
+            JSONObject json = new JSONObject();
+            json.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_KEYWORD, keyword);
             String js = EUExChatKeyboard.SCRIPT_HEADER + "if("
-                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_AT + "){"
-                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_AT + "("
-                    + ");}";
+                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_INPUT_KEYWORD + "){"
+                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_INPUT_KEYWORD + "("
+                    + json.toString() + ");}";
             mUexBaseObj.onCallback(js);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -1018,9 +1098,25 @@ public class ACEChatKeyboardView extends LinearLayout implements
         if (mUexBaseObj != null) {
             JSONObject jsonObject = new JSONObject();
             try {
+                Editable editable = mEditText.getText();
                 jsonObject
                         .put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS_TEXT,
-                                mEditText.getText().toString());
+                                editable.toString());
+                JSONArray array = new JSONArray();
+                ForegroundColorSpan[] spans = editable.getSpans(0, editable.length(), ForegroundColorSpan.class);
+                for (ForegroundColorSpan span : spans) {
+                    JSONObject insertObj = new JSONObject();
+                    int spanStart = editable.getSpanStart(span);
+                    int spanEnd = editable.getSpanEnd(span);
+                    String insertText = editable.subSequence(spanStart, spanEnd).toString();
+                    String insertTextColor = "#" + Integer.toHexString(span.getForegroundColor()).substring(2);
+                    insertObj.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_START, spanStart);
+                    insertObj.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_END, spanEnd);
+                    insertObj.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INSERTTEXT, insertText);
+                    insertObj.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INSERTTEXTCOLOR, insertTextColor);
+                    array.put(insertObj);
+                }
+                jsonObject.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INSERTTEXTS, array);
                 String js = EUExChatKeyboard.SCRIPT_HEADER + "if("
                         + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_COMMIT_JSON + "){"
                         + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_COMMIT_JSON + "("
@@ -1325,7 +1421,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
             }
             int screenHeight = mParentLayout.getRootView().getHeight();
             if (mBrwViewHeight > 0 || tempHeight > screenHeight - heightDifference) {
-                if (bottomMargin + heightDifference > inputHeight) {
+                if (bottomMargin + heightDifference + 4 > inputHeight) {//+4是纠正减法导致的计算误差
                     inputHeight = heightDifference;
                 } else {
                     inputHeight = heightDifference + inputHeight;
