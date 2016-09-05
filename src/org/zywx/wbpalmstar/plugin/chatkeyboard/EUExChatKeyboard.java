@@ -18,6 +18,7 @@
 
 package org.zywx.wbpalmstar.plugin.chatkeyboard;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Message;
@@ -82,7 +83,7 @@ public class EUExChatKeyboard extends EUExBase {
         int height = EUExUtil.dipToPixels(50);
         JSONObject result = new JSONObject();
         try {
-            result.put("height", height);
+            result.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_HEIGHT, height);
         } catch (JSONException e) {
         }
         String jsCallBack = SCRIPT_HEADER
@@ -98,6 +99,26 @@ public class EUExChatKeyboard extends EUExBase {
     public void hideKeyboard(String[] params) {
         sendMessageWithType(CHATKEYBOARD_MSG_HIDE_KEYBOARD, params);
     }
+    
+    public void setPlaceholder(final String[] params){
+        if(params == null || params.length < 1){
+            return;
+        }
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject json = new JSONObject(params[0]);
+                    String hint = json.getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLDER);
+                    if(mChatKeyboardView != null){
+                        mChatKeyboardView.setHint(hint);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
     private void sendMessageWithType(int msgType, String[] params) {
         if (mHandler == null) {
@@ -112,8 +133,28 @@ public class EUExChatKeyboard extends EUExBase {
         mHandler.sendMessage(msg);
     }
 
-    public void insertAfterAt(String[] params){
-        mChatKeyboardView.insertAfterAt(params[0]);
+    public void insertTextByKeyword(final String[] params){
+        if(params == null || params.length < 1){
+            return;
+        }
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject json = new JSONObject(params[0]);
+                    String keyword = json.getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_KEYWORD);
+                    String inserText = json.getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INSERTTEXT);
+                    String keywordColor = json.optString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INSERTTEXTCOLOR);
+                    boolean isReplaceKeyword = "1".equals(json
+                            .optString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_ISREPLACEKEYWORD,"1"));
+                    if(mChatKeyboardView != null){
+                        mChatKeyboardView.insertTextByKeyword(keyword,inserText,keywordColor,isReplaceKeyword);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void handleOpen(Message msg) {
