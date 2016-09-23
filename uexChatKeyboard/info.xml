@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <uexplugins>
     <plugin
-        uexName="uexChatKeyboard" version="3.0.15" build="15">
-        <info>15:解决某些机型收不到getInputBarHeight回调的问题</info>
+        uexName="uexChatKeyboard" version="3.0.16" build="16">
+        <info>16:添加@好友功能</info>
+        <build>15:解决某些机型收不到getInputBarHeight回调的问题</build>
         <build>14:修复部分机型显示不全的问题,修复关闭白屏问题,修复部分机型屏幕宽度获取不对的问题,修复键盘遮蔽问题有时候页面推动过多的问题</build>
         <build>13:优化点击非键盘区域收回键盘时的判断机制,代码逻辑调整优化.</build>
         <build>12:修正键盘弹出效果,修正声音相关回调问题,修正关闭崩溃错误,添加自定义参数,部分代码优化</build>
