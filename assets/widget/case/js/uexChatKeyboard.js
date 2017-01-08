@@ -18,7 +18,8 @@ if (UNIT_TEST) {
                 "sendBtnText": "发送",
                 "sendBtnTextSize": "15.5",
                 "sendBtnTextColor": "#FFF",
-                "inputMode":1
+                "inputMode":0,
+                "isShowVoice":false
             };
             uexChatKeyboard.open(json);
             UNIT_TEST.assert(true);

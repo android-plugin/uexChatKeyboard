@@ -60,4 +60,5 @@ public class EChatKeyboardUtils {
 
     public final static int INPUT_MODE_TEXT = 0;
     public final static int INPUT_MODE_VOICE = 1;
+    public static final String CHATKEYBOARD_PARAMS_JSON_KEY_IS_SHOW_VOICE = "isShowVoice";
 }

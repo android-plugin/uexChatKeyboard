@@ -291,6 +291,18 @@ public class ACEChatKeyboardView extends LinearLayout implements
                         .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INPUTTEXTCOLOR);
                 mEditText.setTextColor(BUtility.parseColor(textColor));
             }
+
+            boolean isShowVoice = false;
+            //is show voice
+            if(json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_IS_SHOW_VOICE)){
+                isShowVoice = json.getBoolean(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_IS_SHOW_VOICE);
+            }
+            if(isShowVoice){
+                mBtnVoice.setVisibility(View.VISIBLE);
+            }else{
+                mBtnVoice.setVisibility(View.GONE);
+            }
+
             // textColor mRecordTimes
             if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_TEXTCOLOR)) {
                 String textColor = json
