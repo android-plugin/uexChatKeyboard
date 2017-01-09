@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <uexplugins>
     <plugin
-        uexName="uexChatKeyboard" version="4.0.0.1" build="1">
-        <info>16:添加是否显示录音按钮参数</info>
+        uexName="uexChatKeyboard" version="4.0.1" build="1">
+        <info>1:添加是否显示录音按钮参数</info>
+        <build>0:聊天键盘插件</build>
     </plugin>
 </uexplugins>
