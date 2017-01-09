@@ -292,7 +292,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
                 mEditText.setTextColor(BUtility.parseColor(textColor));
             }
 
-            boolean isShowVoice = false;
+            boolean isShowVoice = true;
             //is show voice
             if(json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_IS_SHOW_VOICE)){
                 isShowVoice = json.getBoolean(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_IS_SHOW_VOICE);
