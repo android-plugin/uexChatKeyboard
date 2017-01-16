@@ -12,6 +12,7 @@
         <method name="hideKeyboard"/>
         <method name="insertTextByKeyword"/>
         <method name="setPlaceholder"/>
+        <method name="setText"/>
     </plugin>
 
 </uexplugins>

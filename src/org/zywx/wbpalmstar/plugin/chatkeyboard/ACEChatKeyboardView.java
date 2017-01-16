@@ -540,7 +540,6 @@ public class ACEChatKeyboardView extends LinearLayout implements
      * 更新绘制所有关键字
      * 
      * @deprecated
-     * @see #insertAfterAt(String, String, String, boolean)
      * @param insertTexts
      *            包含的所有已插入的关键字(正则匹配所有)
      */
@@ -551,6 +550,14 @@ public class ACEChatKeyboardView extends LinearLayout implements
         }
         mEditText.setText(charSequence);
         mEditText.setSelection(mLastAtPosition);
+    }
+
+    public boolean setText(String text) {
+        if (mEditText!=null){
+            mEditText.setText(text);
+            return true;
+        }
+        return false;
     }
 
     private class EmotjiconsPagerAdapter extends PagerAdapter {

@@ -220,4 +220,10 @@ public class EUExChatKeyboard extends EUExBase {
         return false;
     }
 
+    public boolean setText(String[] params){
+        if (mChatKeyboardView!=null){
+            return mChatKeyboardView.setText(params[0]);
+        }
+        return false;
+    }
 }
