@@ -560,6 +560,13 @@ public class ACEChatKeyboardView extends LinearLayout implements
         return false;
     }
 
+    public String getText(){
+        if (mEditText!=null){
+            return mEditText.getText().toString();
+        }
+        return null;
+    }
+
     private class EmotjiconsPagerAdapter extends PagerAdapter {
         public EmotjiconsPagerAdapter() {
         }

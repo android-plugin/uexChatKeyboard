@@ -13,6 +13,7 @@
         <method name="insertTextByKeyword"/>
         <method name="setPlaceholder"/>
         <method name="setText"/>
+        <method name="getText"/>
     </plugin>
 
 </uexplugins>

@@ -226,4 +226,11 @@ public class EUExChatKeyboard extends EUExBase {
         }
         return false;
     }
+
+    public String getText(String[] params){
+        if (mChatKeyboardView!=null){
+            return mChatKeyboardView.getText();
+        }
+        return null;
+    }
 }
