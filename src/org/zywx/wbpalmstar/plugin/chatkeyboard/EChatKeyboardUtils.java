@@ -22,6 +22,7 @@ public class EChatKeyboardUtils {
 
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS = "emojicons";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_SHARES = "shares";
+    public final static String CHATKEYBOARD_PARAMS_JSON_KEY_MAX_LINES = "maxLines";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLD = "placeHold";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLDER = "placeholder";
     public final static String CHATKEYBOARD_PARAMS_JSON_KEY_TOUCHDOWNIMG = "touchDownImg";

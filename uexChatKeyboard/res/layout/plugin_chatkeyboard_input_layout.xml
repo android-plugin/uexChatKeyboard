@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_gravity="bottom"
     android:background="@android:color/white"
     android:gravity="center_vertical"
@@ -13,8 +14,8 @@
 
     <ImageButton
         android:id="@+id/plugin_chatkeyboard_btn_voice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:background="@drawable/plugin_chatkeyboard_btn_voice_selector" />
 
     <Button
@@ -33,7 +34,7 @@
     <LinearLayout
         android:id="@+id/plugin_chatkeyboard_edit_input_layout"
         android:layout_width="0dip"
-        android:layout_height="40dip"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="6dip"
         android:layout_weight="1"
         android:background="@drawable/plugin_chatkeyboard_input_bg"
@@ -43,10 +44,10 @@
         <org.zywx.wbpalmstar.plugin.chatkeyboard.EditTextEx
             android:id="@+id/plugin_chatkeyboard_edit_input"
             android:layout_width="0dip"
-            android:layout_height="40dip"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:text=""
             android:background="@android:color/transparent"
-            android:singleLine="false"
             android:textColor="#474747"
             android:textSize="17sp" />
 

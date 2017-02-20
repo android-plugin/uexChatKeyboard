@@ -58,6 +58,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -72,7 +73,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.zywx.wbpalmstar.base.BUtility;
-import org.zywx.wbpalmstar.engine.universalex.EUExUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -236,6 +236,10 @@ public class ACEChatKeyboardView extends LinearLayout implements
                     .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SHARES);
             initShares();
             mSharesPager.setAdapter(new SharesPagerAdapter());
+
+            //maxlines
+            int maxLines=json.optInt(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_MAX_LINES,1);
+            mEditText.setMaxLines(maxLines);
 
             // placeHold @see placeholder
             if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLD)) {
@@ -1268,7 +1272,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
             mRecordTipsImage
                     .setImageDrawable(mTouchDownImgDefaule);
         }
-        mRecordTipsLayout.setVisibility(View.INVISIBLE);
+        mRecordTipsLayout.setVisibility(View.GONE);
         timerHandler.removeMessages(TIMER_HANDLER_MESSAGE_WHAT);
     }
 
@@ -1408,7 +1412,19 @@ public class ACEChatKeyboardView extends LinearLayout implements
         }
     }
 
+    /**
+     * 调整WebView高度
+     * @param heightDifference
+     */
     private void goScroll(int heightDifference) {
+
+        if(getContext()!=null){
+            int softInputMode=((Activity) getContext()).getWindow().getAttributes().softInputMode;
+            if ((softInputMode&WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)!=0){
+                return;
+            }
+        }
+
         if (!isKeyboardChange) {
             Log.i(TAG, "↑");
             isKeyboardChange = true;
@@ -1426,7 +1442,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
                 mBrwViewHeight = lp.height;
             }
             int keyboardHeight = mPagerLayout.isShown() ? mPagerLayout.getHeight() : 0;
-            int inputHeight = isKeyBoardVisible || mPagerLayout.isShown() ? EUExUtil.dipToPixels(50) : 0;
+            int inputHeight = isKeyBoardVisible || mPagerLayout.isShown() ? mEditLayout.getHeight() : 0;
             int bottomPoint = ((View) mUexBaseObj.mBrwView.getParent()).getBottom();
             int bottomMargin = mParentLayout.getHeight() - bottomPoint;
             Log.i(TAG, "bottomMargin : " + bottomMargin + "   " + bottomPoint + "   " + mParentLayout.getHeight());
@@ -1448,6 +1464,9 @@ public class ACEChatKeyboardView extends LinearLayout implements
         }
     }
 
+    /**
+     * 让WebView还原
+     */
     private void backScroll() {
         if (isKeyboardChange) {
             Log.i(TAG, "↓");
