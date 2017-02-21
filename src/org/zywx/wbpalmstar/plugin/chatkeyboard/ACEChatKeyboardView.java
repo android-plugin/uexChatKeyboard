@@ -72,6 +72,7 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
+import org.zywx.wbpalmstar.base.BDebug;
 import org.zywx.wbpalmstar.base.BUtility;
 
 import java.io.IOException;
@@ -131,6 +132,11 @@ public class ACEChatKeyboardView extends LinearLayout implements
     private int mBrwViewHeight = 0;
     private List<String> keywords = new ArrayList<String>();
     private int mLastAtPosition=0;
+
+    private static int DRAG_STATE_IDLE=-1;
+    private static int DRAG_STATE_DOWN=0;
+    private static int DRAG_STATE_OUT=1;
+    private int mCurrentDragState=DRAG_STATE_IDLE;//当前按下的状态，0表示按下，1表示在外面
 
     public ACEChatKeyboardView(Context context, JSONObject params, EUExChatKeyboard uexBaseObj) {
         super(context);
@@ -417,20 +423,23 @@ public class ACEChatKeyboardView extends LinearLayout implements
     }
 
     public void onDestroy() {
+        BDebug.d("onDestroy");
         try {
             outOfViewTouch();
-            if (mDragOutsideImg != null)
-                mDragOutsideImg.getBitmap().recycle();
-            if (mTouchDownImg != null)
-                mTouchDownImg.getBitmap().recycle();
-            if (mDragOutsideImgDefaule != null)
+            if (mDragOutsideImg != null){
+                mDragOutsideImg=null;
+            }
+            if (mTouchDownImg != null) {
+                mTouchDownImg = null;
+            }
+            if (mDragOutsideImgDefaule != null) {
                 mDragOutsideImgDefaule.setCallback(null);
-            if (mTouchDownImgDefaule != null)
+                mDragOutsideImgDefaule = null;
+            }
+            if (mTouchDownImgDefaule != null) {
                 mTouchDownImgDefaule.setCallback(null);
-            mDragOutsideImg = null;
-            mDragOutsideImgDefaule = null;
-            mTouchDownImg = null;
-            mTouchDownImgDefaule = null;
+                mTouchDownImgDefaule = null;
+            }
             mParentLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
         } catch (Exception e) {
             e.printStackTrace();
@@ -1277,10 +1286,16 @@ public class ACEChatKeyboardView extends LinearLayout implements
     }
 
     private void handleRecordWhenDown() {
+        mCurrentDragState=DRAG_STATE_DOWN; // 按下
         mRecordTipsLayout.setVisibility(View.VISIBLE);
         mRecordTimes.setVisibility(View.VISIBLE);
         int imageWidth = mRecordTipsImage.getWidth();
         int imageHeight = mRecordTipsImage.getHeight();
+        if (imageWidth==0||imageHeight==0){
+            mRecordTipsImage.measure(0,0);
+            imageHeight=mRecordTipsImage.getMeasuredHeight();
+            imageWidth=mRecordTipsImage.getMeasuredWidth();
+        }
         android.view.ViewGroup.LayoutParams viewParams = mRecordTimes.getLayoutParams();
         ((MarginLayoutParams) viewParams).setMargins((int) (0.65f * imageWidth), (int) (0.55f * imageHeight), 0, 0);
         mRecordTimes.setLayoutParams(viewParams);
@@ -1330,19 +1345,27 @@ public class ACEChatKeyboardView extends LinearLayout implements
                     break;
                 case MotionEvent.ACTION_MOVE:
                     if (Math.abs(x) > btnWidth || Math.abs(y) > btnWidth) {
-                        mRecordTimes.setVisibility(View.GONE);
-                        if (mDragOutsideImg != null) {
-                            mRecordTipsImage.setImageDrawable(mDragOutsideImg);
-                        } else {
-                            mRecordTipsImage
-                                    .setImageDrawable(mDragOutsideImgDefaule);
+                        if (mCurrentDragState!=DRAG_STATE_OUT) {
+                            mCurrentDragState = DRAG_STATE_OUT;
+                            mRecordTimes.setVisibility(View.GONE);
+                            if (mDragOutsideImg != null) {
+                                mRecordTipsImage.setImageDrawable(mDragOutsideImg);
+                            } else {
+                                mRecordTipsImage
+                                        .setImageDrawable(mDragOutsideImgDefaule);
+                            }
+                            BDebug.d("mRecordTipsImage gone");
                         }
                     } else {
-                        mRecordTimes.setVisibility(View.VISIBLE);
-                        if (mTouchDownImg != null) {
-                            mRecordTipsImage.setImageDrawable(mTouchDownImg);
-                        } else {
-                            mRecordTipsImage.setImageDrawable(mTouchDownImgDefaule);
+                        if (mCurrentDragState!=DRAG_STATE_DOWN) {
+                            mCurrentDragState = DRAG_STATE_DOWN;
+                            mRecordTimes.setVisibility(View.VISIBLE);
+                            if (mTouchDownImg != null) {
+                                mRecordTipsImage.setImageDrawable(mTouchDownImg);
+                            } else {
+                                mRecordTipsImage.setImageDrawable(mTouchDownImgDefaule);
+                            }
+                            BDebug.d("mRecordTipsImage visible");
                         }
                     }
                     break;

@@ -163,7 +163,7 @@ public class EUExChatKeyboard extends EUExBase {
         if (params == null || params.length < 1) return;
         try {
             if (mChatKeyboardView != null) {
-                return;
+                handleClose();
             }
             JSONObject json = new JSONObject(params[0]);
             mChatKeyboardView = new ACEChatKeyboardView(mContext, json, this);

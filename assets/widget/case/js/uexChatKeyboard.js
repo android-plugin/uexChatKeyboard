@@ -18,6 +18,7 @@ if (UNIT_TEST) {
                 "sendBtnText": "发送",
                 "sendBtnTextSize": "15.5",
                 "sendBtnTextColor": "#FFF",
+                "maxLines":4,
                 "inputMode":1
             };
             uexChatKeyboard.open(json);
@@ -40,7 +41,10 @@ if (UNIT_TEST) {
                     assert=true;
                 }
             };
-            UNIT_TEST.log("请发送文字");
+            uexChatKeyboard.onKeyBoardShow = function(json){
+                            //alert("onKeyBoardShow:"+json);
+                            setTimeout(function (){window.scrollTo(0, document.body.scrollHeight);},20);
+            }
         },
         "onCommitJson":function () {
             var assert=false;
