@@ -47,7 +47,6 @@ import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Xml;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -74,6 +73,7 @@ import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.zywx.wbpalmstar.base.BDebug;
 import org.zywx.wbpalmstar.base.BUtility;
+import org.zywx.wbpalmstar.engine.universalex.EUExUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,6 +95,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
     private Button mBtnVoiceInput;
     private LinearLayout mParentLayout;
     private LinearLayout mEditLayout;
+    private InputLayout mInputRootLayout;//输出框的root layout
     private LinearLayout mPagerLayout;
     private LinearLayout mEmojiconsLayout;
     private ViewPager mEmojiconsPager;
@@ -189,6 +190,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
         mPagerLayout = (LinearLayout) findViewById(CRes.plugin_chatkeyboard_pager_layout);
 
         mEditLayout = (LinearLayout) findViewById(CRes.plugin_chatkeyboard_edit_input_layout);
+        mInputRootLayout= (InputLayout) findViewById(EUExUtil.getResIdID("plugin_chatkeyboard_input_root_layout"));
         mEditText = (EditTextEx) findViewById(CRes.plugin_chatkeyboard_edit_input);
         mBtnSend = (Button) findViewById(CRes.plugin_chatkeyboard_btn_send);
         mBtnAdd = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_add);
@@ -207,6 +209,22 @@ public class ACEChatKeyboardView extends LinearLayout implements
         mSharesLayout = (LinearLayout) findViewById(CRes.plugin_chatkeyboard_shares_layout);
         mSharesPager = (ViewPager) findViewById(CRes.plugin_chatkeyboard_shares_pager);
         mSharesIndicator = (LinearLayout) findViewById(CRes.plugin_chatkeyboard_shares_pager_indicator);
+
+        mInputRootLayout.setOnSizeChangedListener(new InputLayout.OnSizeChangedListener() {
+            @Override
+            public void onSizeChanged(int w, int h, int oldw, int oldh) {
+                if (isKeyBoardVisible&&isKeyboardChange){
+                    int change=h-oldh;
+                    if (change==0){
+                        return;
+                    }
+                    resizeWebViewByHeightChange(change);
+                    frameChangedCallback();
+
+                }
+            }
+        });
+
     }
 
     private void initEvent() {
@@ -406,10 +424,12 @@ public class ACEChatKeyboardView extends LinearLayout implements
                 if (view.getId() == CRes.plugin_chatkeyboard_parent_layout && transitionType == LayoutTransition.CHANGE_APPEARING) {
                     goScroll(0);
                     jsonKeyBoardShowCallback(isKeyBoardVisible || mPagerLayout.isShown() ? 1 : 0);
+                    frameChangedCallback();
                 } else if (view.getId() == CRes.plugin_chatkeyboard_pager_layout && transitionType == LayoutTransition.DISAPPEARING) {
                     if (!isKeyBoardVisible)
                         backScroll();
                     jsonKeyBoardShowCallback(isKeyBoardVisible || mPagerLayout.isShown() ? 1 : 0);
+                    frameChangedCallback();
                 }
             }
         });
@@ -1095,7 +1115,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
     }
 
     private void toggleBtnSend() {
-        Log.i(TAG, " toggleBtnSend mEditText " + mEditText.getText().toString());
+        BDebug.i(TAG, " toggleBtnSend mEditText " + mEditText.getText().toString());
         jsonSendDataCallback();
         jsonSendDataJsonCallback();
         mEditText.setText(null);
@@ -1176,6 +1196,20 @@ public class ACEChatKeyboardView extends LinearLayout implements
             }
         }
     }
+
+    private void frameChangedCallback() {
+        if (mUexBaseObj != null) {
+            String js = EUExChatKeyboard.SCRIPT_HEADER
+                    + "if("
+                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_FRAMECHANGED
+                    + "){"
+                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_FRAMECHANGED
+                    + "(" + mUexBaseObj.mBrwView.getWidth() + "," + mUexBaseObj.mBrwView.getHeight()
+                    + ");}";
+            mUexBaseObj.onCallback(js);
+        }
+    }
+
 
     private void jsonVoiceActionCallback(int status) {
         // TODO	VoiceAction callback String
@@ -1432,6 +1466,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
         boolean isChange = (isKeyBoardChange != isKeyBoardVisible);
         if (isChange) {
             jsonKeyBoardShowCallback(isKeyBoardVisible || mPagerLayout.isShown() ? 1 : 0);
+            frameChangedCallback();
         }
     }
 
@@ -1441,15 +1476,16 @@ public class ACEChatKeyboardView extends LinearLayout implements
      */
     private void goScroll(int heightDifference) {
 
+        //平移模式不用resize
         if(getContext()!=null){
             int softInputMode=((Activity) getContext()).getWindow().getAttributes().softInputMode;
-            if ((softInputMode&WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)!=0){
+            if (isKeyBoardVisible&&(softInputMode&WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)!=0){
                 return;
             }
         }
 
         if (!isKeyboardChange) {
-            Log.i(TAG, "↑");
+            BDebug.i(TAG, "↑");
             isKeyboardChange = true;
             if (mUexBaseObj == null || mUexBaseObj.mBrwView == null) {
                 return;
@@ -1465,10 +1501,10 @@ public class ACEChatKeyboardView extends LinearLayout implements
                 mBrwViewHeight = lp.height;
             }
             int keyboardHeight = mPagerLayout.isShown() ? mPagerLayout.getHeight() : 0;
-            int inputHeight = isKeyBoardVisible || mPagerLayout.isShown() ? mEditLayout.getHeight() : 0;
+            int inputHeight = isKeyBoardVisible || mPagerLayout.isShown() ? mInputRootLayout.getHeight() : 0;
             int bottomPoint = ((View) mUexBaseObj.mBrwView.getParent()).getBottom();
             int bottomMargin = mParentLayout.getHeight() - bottomPoint;
-            Log.i(TAG, "bottomMargin : " + bottomMargin + "   " + bottomPoint + "   " + mParentLayout.getHeight());
+            BDebug.i(TAG, "bottomMargin : " + bottomMargin + "   " + bottomPoint + "   " + mParentLayout.getHeight());
             if (bottomMargin > inputHeight) {
                 inputHeight = 0;
             }
@@ -1480,7 +1516,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
                     inputHeight = heightDifference + inputHeight;
                 }
             }
-            Log.i(TAG, "Move! height:" + (tempHeight - keyboardHeight - inputHeight) + " tempHeight:" + tempHeight + " ParentkeyboardHeight:" + keyboardHeight + " inputHeight:" + inputHeight);
+            BDebug.i(TAG, "Move! height:" + (tempHeight - keyboardHeight - inputHeight) + " tempHeight:" + tempHeight + " ParentkeyboardHeight:" + keyboardHeight + " inputHeight:" + inputHeight);
             lp.height = tempHeight - keyboardHeight - inputHeight;
             ((ViewGroup) mUexBaseObj.mBrwView).setLayoutParams(lp);
             ((ViewGroup) mUexBaseObj.mBrwView).invalidate();
@@ -1488,11 +1524,27 @@ public class ACEChatKeyboardView extends LinearLayout implements
     }
 
     /**
+     * 根据高度差调整WebView
+     * @param heightChange
+     */
+    private void resizeWebViewByHeightChange(int heightChange){
+        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mUexBaseObj.mBrwView
+                .getLayoutParams();
+        int tempHeight = lp.height;
+        if (tempHeight == LayoutParams.MATCH_PARENT) {
+            tempHeight = mUexBaseObj.mBrwView.getHeight();
+        }
+        lp.height=tempHeight-heightChange;
+        mUexBaseObj.mBrwView.setLayoutParams(lp);
+        mUexBaseObj.mBrwView.invalidate();
+    }
+
+    /**
      * 让WebView还原
      */
     private void backScroll() {
         if (isKeyboardChange) {
-            Log.i(TAG, "↓");
+            BDebug.i(TAG, "↓");
             isKeyboardChange = false;
             if (mUexBaseObj == null || mUexBaseObj.mBrwView == null) {
                 return;

@@ -54,6 +54,7 @@ public class EChatKeyboardUtils {
     public final static String CHATKEYBOARD_FUN_ON_SHAREMENUITEM = "uexChatKeyboard.onShareMenuItem";
     public final static String CHATKEYBOARD_FUN_ON_VOICEACTION = "uexChatKeyboard.onVoiceAction";
     public final static String CHATKEYBOARD_FUN_ON_KEYBOARDSHOW = "uexChatKeyboard.onKeyBoardShow";
+    public final static String CHATKEYBOARD_FUN_ON_FRAMECHANGED = "uexChatKeyboard.onFrameChanged";
     public final static String CHATKEYBOARD_FUN_ON_COMMIT_JSON = "uexChatKeyboard.onCommitJson";
     public final static String CHATKEYBOARD_FUN_CB_GET_INPUTBAR_HEIGHT = "uexChatKeyboard.cbGetInputBarHeight";
     public final static String CHATKEYBOARD_FUN_ON_INPUT_KEYWORD = "uexChatKeyboard.onInputKeyword";

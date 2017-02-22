@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<org.zywx.wbpalmstar.plugin.chatkeyboard.InputLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -80,4 +80,4 @@
         android:background="@android:color/transparent"
         android:src="@drawable/plugin_chatkeyboard_btn_add_normal" />
 
-</LinearLayout>
+</org.zywx.wbpalmstar.plugin.chatkeyboard.InputLayout>
