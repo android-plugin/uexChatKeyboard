@@ -23,15 +23,16 @@ import android.animation.LayoutTransition.TransitionListener;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Handler;
 import android.os.Message;
@@ -44,9 +45,11 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.util.Xml;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -64,14 +67,19 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.zywx.wbpalmstar.base.BUtility;
+import org.zywx.wbpalmstar.engine.EBrowserView;
 import org.zywx.wbpalmstar.engine.universalex.EUExUtil;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -82,6 +90,10 @@ public class ACEChatKeyboardView extends LinearLayout implements
         OnPageChangeListener, TextWatcher, OnClickListener, OnTouchListener, ViewTreeObserver.OnGlobalLayoutListener {
 
     private String TAG = "ACEChatKeyboardView";
+    private String TIPS_RECORDER_NORMAL_TITLE = "按住  说话";
+    private String TIPS_RECORDER_PRESS_TITLE = "松开 结束";
+    private int TIPS_RECORDER_NORMAL_TITLE_COLOR = BUtility.parseColor("#aaa");
+    private int TIPS_RECORDER_PRESS_TITLE_COLOR = BUtility.parseColor("#aaa");
     private EUExChatKeyboard mUexBaseObj;
     private View mOutOfTouchView;
     private EditTextEx mEditText;
@@ -94,6 +106,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
     private LinearLayout mEditLayout;
     private LinearLayout mPagerLayout;
     private LinearLayout mEmojiconsLayout;
+    private LinearLayout mChatKeyboard;
     private ViewPager mEmojiconsPager;
     private LinearLayout mEmojiconsIndicator;
     private LinearLayout mSharesLayout;
@@ -127,8 +140,9 @@ public class ACEChatKeyboardView extends LinearLayout implements
     private boolean isKeyboardChange = false;
     private int keyBoardHeight = 0;
     private int mBrwViewHeight = 0;
-    private List<String> keywords=new ArrayList<String>();
-    private int mLastAtPosition=0;
+    private List<String> keywords = new ArrayList<String>();
+    private int mLastAtPosition = 0;
+    private boolean isShowSharesBtn = true; 
 
     public ACEChatKeyboardView(Context context, JSONObject params, EUExChatKeyboard uexBaseObj) {
         super(context);
@@ -181,6 +195,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
         mPagerLayout = (LinearLayout) findViewById(CRes.plugin_chatkeyboard_pager_layout);
 
         mEditLayout = (LinearLayout) findViewById(CRes.plugin_chatkeyboard_edit_input_layout);
+        mChatKeyboard = (LinearLayout) mEditLayout.getParent();
         mEditText = (EditTextEx) findViewById(CRes.plugin_chatkeyboard_edit_input);
         mBtnSend = (Button) findViewById(CRes.plugin_chatkeyboard_btn_send);
         mBtnAdd = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_add);
@@ -226,20 +241,25 @@ public class ACEChatKeyboardView extends LinearLayout implements
             mRecordTipsLayout.getLayoutParams().height = dm.heightPixels / 2;
             // EmojiconsXmlPath
             mEmojiconsXmlPath = json
-                    .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS);
+                    .optString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS);
             initEmojicons();
             mEmojiconsPager.setAdapter(new EmotjiconsPagerAdapter());
             // mSharesXmlPath
             mSharesXmlPath = json
-                    .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SHARES);
+                    .optString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SHARES);
             initShares();
             mSharesPager.setAdapter(new SharesPagerAdapter());
-
-            // placeHold
+            // placeHold @see placeholder
             if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLD)) {
-                String placehold = json
+                String placeholder = json
                         .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLD);
-                mEditText.setHint(placehold);
+                mEditText.setHint(placeholder);
+            }
+            // placeholder
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLDER)) {
+                String placeholder = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_PLACEHOLDER);
+                mEditText.setHint(placeholder);
             }
             // touchDownImg
             if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_TOUCHDOWNIMG)) {
@@ -276,6 +296,12 @@ public class ACEChatKeyboardView extends LinearLayout implements
             }
             if (mDragOutsideImg == null) {
                 mDragOutsideImgDefaule = getResources().getDrawable(CRes.plugin_chatkeyboard_voice_cancle);
+            }
+            // textColor EditText
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INPUTTEXTCOLOR)) {
+                String textColor = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INPUTTEXTCOLOR);
+                mEditText.setTextColor(BUtility.parseColor(textColor));
             }
             // textColor mRecordTimes
             if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_TEXTCOLOR)) {
@@ -343,6 +369,213 @@ public class ACEChatKeyboardView extends LinearLayout implements
                 mInputMode = json
                         .getInt(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INPUT_MODE);
             }
+            // keywords
+            if( json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_KEYWORDS)){
+                JSONArray keywordArray = json.getJSONArray(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_KEYWORDS);
+                for (int i = 0; i < keywordArray.length(); i++) {
+                    keywords.add(keywordArray.getString(i));
+                }
+            }
+            //inputBgColor
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INPUT_BG_COLOR)) {
+                String inputBgColor = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INPUT_BG_COLOR);
+                float dp3 = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, 3, getResources()
+                        .getDisplayMetrics());
+                Drawable[] drawables = new Drawable[2];
+                if(json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_ISROUND_FOR_BG)){
+                    if(!json.getBoolean(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_ISROUND_FOR_BG)){
+                        drawables[0] = new ColorDrawable(BUtility.parseColor(inputBgColor));
+                    }
+                }
+                if(drawables[0] == null){
+                    GradientDrawable drawable = new GradientDrawable();
+                    drawable.setColor(BUtility.parseColor(inputBgColor));
+                    drawable.setCornerRadii(new float[] { dp3, dp3, dp3, dp3,
+                            dp3, dp3, dp3, dp3 });
+                    drawable.setGradientRadius(dp3);
+                    drawables[0] = drawable;
+                }
+                drawables[1] = mEditLayout.getBackground();
+                LayerDrawable layer = new LayerDrawable(drawables);
+                int dp1 = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, 1.5f, getResources()
+                        .getDisplayMetrics());
+                layer.setLayerInset(1, dp1, dp1, dp1, dp1); 
+                mEditLayout.setBackground(layer);
+            }
+            //chatKeyboardBgColor
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_CHAT_KEY_BOARD_BG_COLOR)) {
+                String chatKeyboardBgColor = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_CHAT_KEY_BOARD_BG_COLOR);
+                mChatKeyboard.setBackgroundColor(BUtility.parseColor(chatKeyboardBgColor));
+            }
+            //recorder_bg_color
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_RECORDER_BG_COLOR)) {
+                String recorder_bg_color = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_RECORDER_BG_COLOR);
+                float dp3 = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, 3, getResources()
+                        .getDisplayMetrics());
+                GradientDrawable drawable = new GradientDrawable();
+                drawable.setColor(BUtility.parseColor(recorder_bg_color));
+                drawable.setCornerRadii(new float[] { dp3, dp3, dp3, dp3,
+                        dp3, dp3, dp3, dp3 });
+                drawable.setGradientRadius(dp3);
+                if(json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_ISROUND_FOR_BG)){
+                    if(!json.getBoolean(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_ISROUND_FOR_BG)){
+                        drawable.setCornerRadii(new float[] { 0, 0, 0, 0, 0, 0,
+                                0, 0 });
+                    }
+                }
+                mBtnVoiceInput.setBackground(drawable);
+            }
+            //recorder_normal_title
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_RECORDER_NORMAL_TITLE)) {
+                String recorder_normal_title = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_RECORDER_NORMAL_TITLE);
+                TIPS_RECORDER_NORMAL_TITLE = recorder_normal_title;
+                mBtnVoiceInput.setText(TIPS_RECORDER_NORMAL_TITLE);
+            }
+            //recorder_normal_title_color
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_RECORDER_NORMAL_TITLE_COLOR)) {
+                String recorder_normal_title_color = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_RECORDER_NORMAL_TITLE_COLOR);
+                TIPS_RECORDER_NORMAL_TITLE_COLOR = BUtility.parseColor(recorder_normal_title_color);
+                mBtnVoiceInput.setTextColor(TIPS_RECORDER_NORMAL_TITLE_COLOR);
+            }
+            //recorder_highlighted_title
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_RECORDER_HIGHLIGHTED_TITLE)) {
+                String recorder_highlighted_title = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_RECORDER_HIGHLIGHTED_TITLE);
+                TIPS_RECORDER_PRESS_TITLE = recorder_highlighted_title;
+            }
+            //recorder_highlighted_title_color
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_RECORDER_HIGHLIGHTED_TITLE_COLOR)) {
+                String recorder_highlighted_title_color = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_RECORDER_HIGHLIGHTED_TITLE_COLOR);
+                TIPS_RECORDER_PRESS_TITLE_COLOR = BUtility.parseColor(recorder_highlighted_title_color);
+            }
+            // mBtnVoice img Set
+            try {
+                // Selector need StateListDrawable
+                StateListDrawable oldGrad = (StateListDrawable) mBtnVoice.getBackground();
+                StateListDrawable setGrad = null;
+                // keyboard image Set Press
+                if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_KEY_BOARD_BTN_IMG)) {
+                    String mBtnVoiceImgDown = json
+                            .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_KEY_BOARD_BTN_IMG);
+                    mBtnVoiceImgDown = mBtnVoiceImgDown
+                            .substring(BUtility.F_Widget_RES_SCHEMA.length());
+                    mBtnVoiceImgDown = BUtility.F_Widget_RES_path + mBtnVoiceImgDown;
+                    Bitmap voiceBtnImgDownBitmap = mUexBaseObj.getBitmap(mBtnVoiceImgDown);
+                    if (voiceBtnImgDownBitmap != null) {
+                        setGrad = new StateListDrawable();
+                        BitmapDrawable bitmapDraw = new BitmapDrawable(
+                                getResources(), voiceBtnImgDownBitmap);
+                        setGrad.addState(
+                                new int[] { android.R.attr.state_selected },
+                                bitmapDraw);
+                    }
+                }
+                // mBtnVoice image Normal
+                if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_VOICE_BTN_IMG)) {
+                    String voiceBtnImgPath = json
+                            .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_VOICE_BTN_IMG);
+                    voiceBtnImgPath = voiceBtnImgPath
+                            .substring(BUtility.F_Widget_RES_SCHEMA.length());
+                    voiceBtnImgPath = BUtility.F_Widget_RES_path + voiceBtnImgPath;
+                    Bitmap voiceBtnImgBitmap = mUexBaseObj.getBitmap(voiceBtnImgPath);
+                    if (voiceBtnImgBitmap != null) {
+                        if(setGrad == null){
+                            setGrad = new StateListDrawable();
+                            mBtnVoice.setSelected(true);
+                            setGrad.addState(oldGrad.getState(), oldGrad.getCurrent());
+                            mBtnVoice.setSelected(false);
+                        }
+                        BitmapDrawable bitmapDraw = new BitmapDrawable(getResources(), voiceBtnImgBitmap);
+                        setGrad.addState(new int[]{}, bitmapDraw);
+                    }
+                }else if(setGrad != null){
+                    setGrad.addState(oldGrad.getState(), oldGrad.getCurrent());
+                }
+                if(setGrad != null){
+                    mBtnVoice.setBackground(setGrad);
+                    int height = (int) TypedValue
+                            .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32,
+                                    getResources().getDisplayMetrics());
+                    mBtnVoice.getLayoutParams().height = height;
+                    mBtnVoice.getLayoutParams().width = height;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            // add_btn_img
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SELECTOR_BTN_IMG)) {
+                String add_btn_img = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SELECTOR_BTN_IMG);
+                add_btn_img = add_btn_img.substring(BUtility.F_Widget_RES_SCHEMA
+                        .length());
+                add_btn_img = BUtility.F_Widget_RES_path + add_btn_img;
+                Bitmap selector_btn_img_Bitmap = mUexBaseObj.getBitmap(add_btn_img);
+                if (selector_btn_img_Bitmap != null) {
+                    mBtnAdd.setImageDrawable(new BitmapDrawable(getResources(),
+                            selector_btn_img_Bitmap));
+                    mBtnAdd.setScaleType(ScaleType.FIT_XY);
+                }
+            }
+            // emotion_btn_img
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_EMOTION_BTN_IMG)) {
+                String emotion_btn_img = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_EMOTION_BTN_IMG);
+                emotion_btn_img = emotion_btn_img.substring(BUtility.F_Widget_RES_SCHEMA
+                        .length());
+                emotion_btn_img = BUtility.F_Widget_RES_path + emotion_btn_img;
+                Bitmap emotion_btn_img_Bitmap = mUexBaseObj.getBitmap(emotion_btn_img);
+                if (emotion_btn_img_Bitmap != null) {
+                    mBtnEmojicon.setImageDrawable(new BitmapDrawable(getResources(),
+                            emotion_btn_img_Bitmap));
+                    mBtnEmojicon.setScaleType(ScaleType.FIT_XY);
+                }
+            }
+            // mEmojiconsLayout background color Set
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_FACE_VIEW_BG_COLOR)) {
+                String face_view_bg_color = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_FACE_VIEW_BG_COLOR);
+                mEmojiconsLayout.setBackgroundColor(BUtility.parseColor(face_view_bg_color));
+            }
+            // mSharesLayout background color Set
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SHARE_VIEW_BG_COLOR)) {
+                String sharesLayoutBgColor = json
+                        .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SHARE_VIEW_BG_COLOR);
+                mSharesLayout.setBackgroundColor(BUtility.parseColor(sharesLayoutBgColor));
+            }
+            // isShowSwitchBtn
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_IS_SHOW_SWITCH_BTN)) {
+                boolean isShowSwitchBtn = json
+                        .getBoolean(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_IS_SHOW_SWITCH_BTN);
+                if(!isShowSwitchBtn){
+                    mBtnVoice.setVisibility(View.GONE);
+                }
+            }
+            // isShowemojiconsBtn
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_IS_SHOW_EMOJICONS_BTN)) {
+                boolean isShowemojiconsBtn = json
+                        .getBoolean(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_IS_SHOW_EMOJICONS_BTN);
+                if(!isShowemojiconsBtn){
+                    mBtnEmojicon.setVisibility(View.INVISIBLE);
+                }
+            }
+            // isShowSharesBtn
+            if (json.has(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_IS_SHOW_SHARES_BTN)) {
+                isShowSharesBtn = json
+                        .getBoolean(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_IS_SHOW_SHARES_BTN);
+                if(!isShowSharesBtn){
+                    mBtnAdd.setVisibility(View.GONE);
+                    mBtnSend.setVisibility(View.VISIBLE);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -384,6 +617,12 @@ public class ACEChatKeyboardView extends LinearLayout implements
         });
         mParentLayout.setLayoutTransition(mLayoutTransition);
     }
+    
+    public void setHint(String hint){
+        if(mEditText != null){
+            mEditText.setHint(hint);
+        }
+    }
 
     public void onDestroy() {
         try {
@@ -414,6 +653,17 @@ public class ACEChatKeyboardView extends LinearLayout implements
             return super.onKeyDown(keyCode, event);
         }
     }
+    /**
+     * 制造一个真实的路径
+     * from BUtility
+     * @return
+     */
+    public String makeRealPath(String path, EBrowserView browserView) {
+        path = BUtility.makeUrl(browserView.getCurrentUrl(), path);
+        int wgtType = browserView.getCurrentWidget().m_wgtType;
+        String widgetPath = browserView.getCurrentWidget().getWidgetPath();
+        return BUtility.makeRealPath(path, widgetPath, wgtType);
+    }
 
     /**
      * Reading all emoticons in local cache
@@ -421,12 +671,21 @@ public class ACEChatKeyboardView extends LinearLayout implements
     private void initEmojicons() {
         InputStream in = null;
         try {
+            /*String xmlPath = makeRealPath(mEmojiconsXmlPath, mUexBaseObj.mBrwView);
+            String emojiconsFolder = xmlPath.substring(0, xmlPath.lastIndexOf("/") + 1);
+            if (xmlPath.startsWith("widget/")) {
+                in = getContext().getAssets().open(xmlPath);
+            } else {
+                File file = new File(xmlPath);
+                in = new FileInputStream(file);
+            }*/
             String xmlPath = mEmojiconsXmlPath
                     .substring(BUtility.F_Widget_RES_SCHEMA.length());
             String emojiconsFolder = BUtility.F_Widget_RES_path
                     + xmlPath.substring(0, xmlPath.lastIndexOf("/") + 1);
             String resXmlPath = BUtility.F_Widget_RES_path + xmlPath;
             in = getContext().getAssets().open(resXmlPath);
+
             XmlPullParser parser = Xml.newPullParser();
             parser.setInput(in, "utf-8");
             int tokenType = 0;
@@ -470,10 +729,14 @@ public class ACEChatKeyboardView extends LinearLayout implements
      * For loading smileys from assets
      */
     private Bitmap getBitmap(String path) {
-        AssetManager mngr = getContext().getAssets();
         InputStream in = null;
         try {
-            in = mngr.open(path);
+            if (path.startsWith("widget/")) {
+                in = getContext().getAssets().open(path);
+            } else {
+                File file = new File(path);
+                in = new FileInputStream(file);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -482,19 +745,44 @@ public class ACEChatKeyboardView extends LinearLayout implements
         return temp;
     }
 
-    public void insertAfterAt(String keyword) {
-        if (TextUtils.isEmpty(keyword)){
+    public void insertTextByKeyword(String keyword,String insertText,String color,boolean isReplaceKeyword) {
+        if (TextUtils.isEmpty(keyword) || TextUtils.isEmpty(insertText)){
             return;
         }
-        keywords.add("@"+keyword);
-        mEditText.getEditableText().insert(mLastAtPosition+1,keyword);
-        mLastAtPosition=mLastAtPosition+keyword.length();
-        updateEditTextViewWithKeyword();
+        if (TextUtils.isEmpty(color)){
+            color = "#507daf";
+        }
+        Editable editable = mEditText.getText();
+        int lastAtPosition = mLastAtPosition;
+        if(editable.length() < keyword.length() || editable.length() < lastAtPosition + keyword.length()){
+            return;
+        }
+        if(!keyword.equals(editable.subSequence(lastAtPosition, lastAtPosition + keyword.length()).toString())){
+            if(!editable.toString().contains(keyword)){
+                return;
+            }
+            lastAtPosition = editable.toString().lastIndexOf(keyword);
+        }
+        if(isReplaceKeyword){
+            editable.replace(lastAtPosition, lastAtPosition + keyword.length(), Html.fromHtml("<font color=\""+ color + "\">" + insertText + "</font>"));
+        }else{
+            editable.insert(lastAtPosition + keyword.length(), Html.fromHtml("<font color=\""+ color + "\">" + insertText + "</font>"));
+        }
+        lastAtPosition += insertText.length() + (isReplaceKeyword ? 0 : keyword.length());
+        mEditText.setSelection(lastAtPosition);
     }
 
-    public void updateEditTextViewWithKeyword(){
+    /**
+     * 更新绘制所有关键字
+     * 
+     * @deprecated
+     * @see #insertAfterAt(String, String, String, boolean)
+     * @param insertTexts
+     *            包含的所有已插入的关键字(正则匹配所有)
+     */
+    public void updateEditTextViewWithKeyword(List<String> insertTexts){
         CharSequence charSequence = mEditText.getText();
-        for (String name : keywords) {
+        for (String name : insertTexts) {
             charSequence = Replacer.replace(charSequence, name, Html.fromHtml("<font color=\"#507daf\">" + name + "</font>"));
         }
         mEditText.setText(charSequence);
@@ -562,6 +850,10 @@ public class ACEChatKeyboardView extends LinearLayout implements
         }
     }
 
+    private int getTextHeight(Paint textPaint) {
+        return (int) (-textPaint.ascent() + textPaint.descent());
+    }
+
     public class EmojiconsGridAdapter extends BaseAdapter {
         private ArrayList<String> paths;
 
@@ -595,10 +887,13 @@ public class ACEChatKeyboardView extends LinearLayout implements
                     }
                 });
             } else {
-                final Drawable drawable = image.getDrawable();
                 image.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        BitmapDrawable drawable1 = (BitmapDrawable) ((ImageView)v).getDrawable();
+                        BitmapDrawable drawable = new BitmapDrawable(getResources(), drawable1.getBitmap());
+                        int textHeight = getTextHeight(mEditText.getPaint());
+                        drawable.setBounds(0, 0, textHeight, textHeight);
                         CharSequence text = mEmojiconsText.get(mEmojiconsPath
                                 .indexOf(path));
                         ImageSpan imageSpan = new ImageSpan(drawable);
@@ -632,6 +927,14 @@ public class ACEChatKeyboardView extends LinearLayout implements
     private void initShares() {
         InputStream in = null;
         try {
+            /*String xmlPath = makeRealPath(mSharesXmlPath, mUexBaseObj.mBrwView);
+            String sharesFolder = xmlPath.substring(0, xmlPath.lastIndexOf("/") + 1);
+            if (xmlPath.startsWith("widget/")) {
+                in = getContext().getAssets().open(xmlPath);
+            } else {
+                File file = new File(xmlPath);
+                in = new FileInputStream(file);
+            }*/
             String xmlPath = mSharesXmlPath
                     .substring(BUtility.F_Widget_RES_SCHEMA.length());
             String sharesFolder = BUtility.F_Widget_RES_path
@@ -702,9 +1005,9 @@ public class ACEChatKeyboardView extends LinearLayout implements
                     pathsInAPage);
             grid.setSelector(new ColorDrawable(Color.TRANSPARENT));
             grid.setAdapter(adapter);
-			/*if(keyBoardHeight != 0){
-				grid.setVerticalSpacing((int)(keyBoardHeight / 25));
-			}*/
+            /*if (keyBoardHeight != 0) {
+                grid.setVerticalSpacing((int) (keyBoardHeight / 25));
+            }*/
             mSharesPageIndex = position;
             container.addView(layout);
             return layout;
@@ -859,19 +1162,74 @@ public class ACEChatKeyboardView extends LinearLayout implements
                                   int after) {
     }
 
+    private int lastline = 0;
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        mBtnSend.setVisibility(mEditText.getText().length() != 0 ? View.VISIBLE
-                : View.GONE);
-        mBtnAdd.setVisibility(mEditText.getText().length() == 0 ? View.VISIBLE
-                : View.GONE);
-        if (count==1&&'@'==s.charAt(start)) {
-            mLastAtPosition=start;
+        try {
+            mBtnSend.setVisibility(mEditText.getText().length() != 0
+                    || !isShowSharesBtn ? View.VISIBLE : View.GONE);
+            mBtnAdd.setVisibility(mEditText.getText().length() == 0
+                    && isShowSharesBtn ? View.VISIBLE : View.GONE);
+
+            // test maxline
+            int line = mEditText.getLineCount();
+            Log.i(TAG, "laline : " + lastline + " line : " + line + "  he : "  + mEditText.getLineHeight());
+            if(line!= lastline && line > 2 && line < 8){
+                LayoutParams ls = (LayoutParams) ((View)mEditText.getParent().getParent()).getLayoutParams();
+                int addline = 0;
+                if(lastline == 0){
+                    addline = line - 2 - lastline;
+                }else {
+                    addline = line - lastline;
+                }
+                int lineHeightCount = mEditText.getLineHeight() * addline;
+                ls.height = ls.height + lineHeightCount;
+                lastline = line;
+            } else if(line <= 2 && lastline > 2){
+                lastline = 0;
+                LayoutParams ls = (LayoutParams) ((View)mEditText.getParent().getParent()).getLayoutParams();
+                ls.height = EUExUtil.dipToPixels(50);
+            } else if(line!= lastline && line > 7 && lastline < 7){
+                LayoutParams ls = (LayoutParams) ((View)mEditText.getParent().getParent()).getLayoutParams();
+                int lineHeightCount = mEditText.getLineHeight() * 5;
+                ls.height = ls.height + lineHeightCount;
+                lastline = 7;
+            }
+
+            if(before > 0 && count == 0){
+                //delete or replace
+                return;
+            }
+            int size = keywords.size();
+            int keywordStart = start;
+            String keyword = null;
+            for (int i = 0; i < size; i++) {
+                String keywordTemp = keywords.get(i);
+                int keywordlength = keywordTemp.length();
+                int startTemp = start + count - keywordlength;
+                if(startTemp < 0 || s.length() < keywordlength){
+                    continue;
+                }
+                String edit = s.subSequence(startTemp, startTemp + keywordlength).toString();
+                if(keywordTemp.equals(edit)){
+                    keywordStart = startTemp;
+                    keyword = keywordTemp;
+                    break;
+                }
+            }
+            if(keyword == null){
+                return;
+            }
+            mLastAtPosition = keywordStart;
+            JSONObject json = new JSONObject();
+            json.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_KEYWORD, keyword);
             String js = EUExChatKeyboard.SCRIPT_HEADER + "if("
-                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_AT + "){"
-                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_AT + "("
-                    + ");}";
+                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_INPUT_KEYWORD + "){"
+                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_INPUT_KEYWORD + "("
+                    + json.toString() + ");}";
             mUexBaseObj.onCallback(js);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -919,7 +1277,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
             if (!isKeyBoardVisible) {
                 mInputManager.toggleSoftInputFromWindow(
                         mEditText.getWindowToken(),
-                        InputMethodManager.SHOW_FORCED, 0);
+                        InputMethodManager.SHOW_IMPLICIT, 0);
             }
             mEmojiconsLayout.setVisibility(View.GONE);
             mPagerLayout.setVisibility(View.GONE);
@@ -967,7 +1325,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
             if (!isKeyBoardVisible) {
                 mInputManager.toggleSoftInputFromWindow(
                         mEditText.getWindowToken(),
-                        InputMethodManager.SHOW_FORCED, 0);
+                        InputMethodManager.SHOW_IMPLICIT, 0);
             }
             mSharesLayout.setVisibility(View.GONE);
             mPagerLayout.setVisibility(View.GONE);
@@ -1018,9 +1376,25 @@ public class ACEChatKeyboardView extends LinearLayout implements
         if (mUexBaseObj != null) {
             JSONObject jsonObject = new JSONObject();
             try {
+                Editable editable = mEditText.getText();
                 jsonObject
                         .put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS_TEXT,
-                                mEditText.getText().toString());
+                                editable.toString());
+                JSONArray array = new JSONArray();
+                ForegroundColorSpan[] spans = editable.getSpans(0, editable.length(), ForegroundColorSpan.class);
+                for (ForegroundColorSpan span : spans) {
+                    JSONObject insertObj = new JSONObject();
+                    int spanStart = editable.getSpanStart(span);
+                    int spanEnd = editable.getSpanEnd(span);
+                    String insertText = editable.subSequence(spanStart, spanEnd).toString();
+                    String insertTextColor = "#" + Integer.toHexString(span.getForegroundColor()).substring(2);
+                    insertObj.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_START, spanStart);
+                    insertObj.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_END, spanEnd);
+                    insertObj.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INSERTTEXT, insertText);
+                    insertObj.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INSERTTEXTCOLOR, insertTextColor);
+                    array.put(insertObj);
+                }
+                jsonObject.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_INSERTTEXTS, array);
                 String js = EUExChatKeyboard.SCRIPT_HEADER + "if("
                         + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_COMMIT_JSON + "){"
                         + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_COMMIT_JSON + "("
@@ -1110,7 +1484,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
                 mEditText.requestFocus();
                 mInputManager.toggleSoftInputFromWindow(
                         mEditText.getWindowToken(),
-                        InputMethodManager.SHOW_FORCED, 0);
+                        InputMethodManager.SHOW_IMPLICIT, 0);
             }
             mBtnVoice.setSelected(false);
             mBtnVoiceInput.setVisibility(View.GONE);
@@ -1150,7 +1524,8 @@ public class ACEChatKeyboardView extends LinearLayout implements
     };
 
     private void completeRecord() {
-        mBtnVoiceInput.setText("按住  说话");
+        mBtnVoiceInput.setText(TIPS_RECORDER_NORMAL_TITLE);
+        mBtnVoiceInput.setTextColor(TIPS_RECORDER_NORMAL_TITLE_COLOR);
         mRecordTimes.setText("");
         if (mTouchDownImg != null) {
             mRecordTipsImage.setImageDrawable(mTouchDownImg);
@@ -1171,7 +1546,8 @@ public class ACEChatKeyboardView extends LinearLayout implements
         ((MarginLayoutParams) viewParams).setMargins((int) (0.65f * imageWidth), (int) (0.55f * imageHeight), 0, 0);
         mRecordTimes.setLayoutParams(viewParams);
         mRecordTimes.invalidate();
-        mBtnVoiceInput.setText("松开 结束");
+        mBtnVoiceInput.setText(TIPS_RECORDER_PRESS_TITLE);
+        mBtnVoiceInput.setTextColor(TIPS_RECORDER_PRESS_TITLE_COLOR);
     }
 
     @Override
@@ -1251,7 +1627,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
                 }
             }
             return false;
-        } else if (v == mOutOfTouchView) {
+        } else if (id == mOutOfTouchView.getId()) {
             if (isKeyBoardVisible || mPagerLayout.isShown()) {
                 outOfViewTouch();
                 return true;
@@ -1278,8 +1654,8 @@ public class ACEChatKeyboardView extends LinearLayout implements
             //弹出键盘的时候,判断下俩者有弹出状态则设置隐藏  2015-08-12
             if (mPagerLayout.isShown()) {
                 mPagerLayout.setVisibility(View.GONE);
-				/*backScroll();
-				goScroll(heightDifference);*/
+                /*backScroll();
+                goScroll(heightDifference);*/
             }
             keyBoardHeight = heightDifference;
             //changeKeyBoardHeight(heightDifference);
@@ -1325,7 +1701,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
             }
             int screenHeight = mParentLayout.getRootView().getHeight();
             if (mBrwViewHeight > 0 || tempHeight > screenHeight - heightDifference) {
-                if (bottomMargin + heightDifference > inputHeight) {
+                if (bottomMargin + heightDifference + 4 > inputHeight) {//+4是纠正减法导致的计算误差
                     inputHeight = heightDifference;
                 } else {
                     inputHeight = heightDifference + inputHeight;

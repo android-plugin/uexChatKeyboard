@@ -13,7 +13,7 @@ import android.widget.EditText;
  */
 
 public class EditTextEx extends EditText {
-
+    
     public EditTextEx(Context context) {
         super(context);
         init();
@@ -74,5 +74,4 @@ public class EditTextEx extends EditText {
         }
         super.onSelectionChanged(selStart, selEnd);
     }
-
 }

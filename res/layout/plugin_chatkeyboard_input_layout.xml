@@ -15,6 +15,8 @@
         android:id="@+id/plugin_chatkeyboard_btn_voice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dip"
+        android:layout_gravity="top"
         android:background="@drawable/plugin_chatkeyboard_btn_voice_selector" />
 
     <Button
@@ -33,9 +35,10 @@
     <LinearLayout
         android:id="@+id/plugin_chatkeyboard_edit_input_layout"
         android:layout_width="0dip"
-        android:layout_height="40dip"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="6dip"
         android:layout_weight="1"
+        android:minHeight="40dip"
         android:background="@drawable/plugin_chatkeyboard_input_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal" >
@@ -43,8 +46,9 @@
         <org.zywx.wbpalmstar.plugin.chatkeyboard.EditTextEx
             android:id="@+id/plugin_chatkeyboard_edit_input"
             android:layout_width="0dip"
-            android:layout_height="40dip"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:maxLines="7"
             android:background="@android:color/transparent"
             android:singleLine="false"
             android:textColor="#474747"
@@ -55,6 +59,7 @@
             android:layout_width="32dip"
             android:layout_height="40dip"
             android:layout_marginRight="4dip"
+            android:layout_gravity="top"
             android:background="@android:color/transparent"
             android:src="@drawable/plugin_chatkeyboard_btn_emojicon_normal" />
     </LinearLayout>
@@ -64,8 +69,10 @@
         android:layout_width="40dip"
         android:layout_height="33dip"
         android:layout_marginLeft="6dip"
+        android:layout_marginTop="5dip"
         android:background="@drawable/plugin_chatkeyboard_send_bg_selector"
         android:gravity="center"
+        android:layout_gravity="top"
         android:text="发送"
         android:textColor="@android:color/white"
         android:textSize="12sp"
@@ -76,6 +83,8 @@
         android:layout_width="40dip"
         android:layout_height="33dip"
         android:layout_marginLeft="6dip"
+        android:layout_marginTop="5dip"
+        android:layout_gravity="top"
         android:background="@android:color/transparent"
         android:src="@drawable/plugin_chatkeyboard_btn_add_normal" />
 
