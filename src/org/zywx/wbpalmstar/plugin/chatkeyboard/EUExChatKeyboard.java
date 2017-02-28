@@ -170,7 +170,7 @@ public class EUExChatKeyboard extends EUExBase {
 
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                     RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-            // lp.bottomMargin=json.optInt("bottom",0);
+            lp.bottomMargin=json.optInt("bottom",0);
             addView2CurrentWindow(mChatKeyboardView, lp);
         } catch (Exception e) {
             e.printStackTrace();
