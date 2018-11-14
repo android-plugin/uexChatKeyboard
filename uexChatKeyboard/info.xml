@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <uexplugins>
     <plugin
-        uexName="uexChatKeyboard" version="4.0.3" build="3">
-        <info>3:添加onFrameChanged接口</info>
+        uexName="uexChatKeyboard" version="4.3.3" build="4">
+        <info>4:添加动态权限申请</info>
+        <build>3:添加onFrameChanged接口</build>
         <build>2:输入支持显示多行，修复平移模式bug</build>
         <build>1:添加setText接口</build>
         <build>0:4.0</build>
