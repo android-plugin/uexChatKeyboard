@@ -24,6 +24,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -47,6 +48,7 @@ import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Xml;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -77,6 +79,7 @@ import org.zywx.wbpalmstar.engine.universalex.EUExUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,6 +95,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
     private Button mBtnSend;
     private ImageButton mBtnAdd;
     private ImageButton mBtnVoice;
+    private ImageButton mKeyboardDown;
     private Button mBtnVoiceInput;
     private LinearLayout mParentLayout;
     private LinearLayout mEditLayout;
@@ -192,9 +196,12 @@ public class ACEChatKeyboardView extends LinearLayout implements
         mEditLayout = (LinearLayout) findViewById(CRes.plugin_chatkeyboard_edit_input_layout);
         mInputRootLayout= (InputLayout) findViewById(EUExUtil.getResIdID("plugin_chatkeyboard_input_root_layout"));
         mEditText = (EditTextEx) findViewById(CRes.plugin_chatkeyboard_edit_input);
+        mEditText.setACEChatKeyboardView(this);
         mBtnSend = (Button) findViewById(CRes.plugin_chatkeyboard_btn_send);
         mBtnAdd = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_add);
+        mKeyboardDown=(ImageButton)findViewById(CRes.plugin_chatkeyboard_down);
         mBtnVoice = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_voice);
+
         mBtnEmojicon = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_emojicon);
         mBtnVoiceInput = (Button) findViewById(CRes.plugin_chatkeyboard_btn_voice_input);
 
@@ -235,6 +242,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
         mBtnSend.setOnClickListener(this);
         mBtnAdd.setOnClickListener(this);
         mBtnVoice.setOnClickListener(this);
+        mKeyboardDown.setOnClickListener(this);
         mBtnVoiceInput.setOnTouchListener(this);
 
         mEmojiconsPager.setOnPageChangeListener(this);
@@ -243,6 +251,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
         mOutOfTouchView.setOnTouchListener(this);
         mParentLayout.setOnTouchListener(this);
         mParentLayout.getViewTreeObserver().addOnGlobalLayoutListener(this);
+
     }
 
     private void initKeyboardParams(JSONObject json) {
@@ -397,6 +406,8 @@ public class ACEChatKeyboardView extends LinearLayout implements
         }
     }
 
+
+
     /**
      * initLayout Animator
      */
@@ -435,7 +446,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
         });
         mParentLayout.setLayoutTransition(mLayoutTransition);
     }
-    
+
     public void setHint(String hint){
         if(mEditText != null){
             mEditText.setHint(hint);
@@ -571,7 +582,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
 
     /**
      * 更新绘制所有关键字
-     * 
+     *
      * @deprecated
      * @param insertTexts
      *            包含的所有已插入的关键字(正则匹配所有)
@@ -1013,21 +1024,34 @@ public class ACEChatKeyboardView extends LinearLayout implements
             return;
         }
         if (id == CRes.plugin_chatkeyboard_btn_emojicon) {
+//            Toast.makeText(mContext,"表情",Toast.LENGTH_SHORT).show();
+            KeyBoradiconCallBack(1);
             toggleBtnEmojicon(mEmojiconsLayout.isShown() ? false : true);
         } else if (id == CRes.plugin_chatkeyboard_btn_add) {
+//            Toast.makeText(mContext,"添加",Toast.LENGTH_SHORT).show();
+            KeyBoradiconCallBack(2);
             toggleBtnAdd(mSharesLayout.isShown() ? false : true);
         } else if (id == CRes.plugin_chatkeyboard_btn_send) {
             toggleBtnSend();
         } else if (id == CRes.plugin_chatkeyboard_btn_voice) {
             toggleBtnVoice();
         } else if (id == CRes.plugin_chatkeyboard_edit_input) {
+//            Toast.makeText(mContext,"input",Toast.LENGTH_SHORT).show();
+            KeyBoradiconCallBack(3);
+
             if (mPagerLayout.isShown()) {
                 mPagerLayout.setVisibility(View.GONE);
             }
+        }else if(id == CRes.plugin_chatkeyboard_down){
+            String js = EUExChatKeyboard.SCRIPT_HEADER + "if("
+                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_KEYBORD_DOWN + "){"
+                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_KEYBORD_DOWN + "();}";
+            mUexBaseObj.onCallback(js);
         }
     }
 
     private void toggleBtnEmojicon(boolean visible) {
+        Log.e("TAG", "visible========"+visible+"=======isKeyBoardVisible====="+isKeyBoardVisible);
         if (visible) {
             if (isKeyBoardVisible) {
                 backScroll();
@@ -1175,6 +1199,28 @@ public class ACEChatKeyboardView extends LinearLayout implements
         }
     }
 
+
+    public void  KeyBoradiconCallBack(int type){
+        if (mUexBaseObj != null) {
+            Log.e("TAG", "================"+type);
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject
+                        .put("type",
+                                type);
+                String js = EUExChatKeyboard.SCRIPT_HEADER
+                        + "if("
+                        + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_KEYBORD_IOCN
+                        + "){"
+                        + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_KEYBORD_IOCN
+                        + "('" + jsonObject.toString()
+                        + "');}";
+                mUexBaseObj.onCallback(js);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
     private void jsonKeyBoardShowCallback(int status) {
         // TODO	KeyBoardShow status callback String
         if (mUexBaseObj != null) {
@@ -1432,6 +1478,36 @@ public class ACEChatKeyboardView extends LinearLayout implements
         return true;
     }
 
+    private int getNavigationBarHeight() {
+        Resources resources = mContext.getResources();
+        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+        int height = resources.getDimensionPixelSize(resourceId);
+        Log.v("dbw", "Navi height:" + height);
+        return height;
+    }
+    //获取是否存在NavigationBar
+    public static boolean checkDeviceHasNavigationBar(Context context) {
+        boolean hasNavigationBar = false;
+        Resources rs = context.getResources();
+        int id = rs.getIdentifier("config_showNavigationBar", "bool", "android");
+        if (id > 0) {
+            hasNavigationBar = rs.getBoolean(id);
+        }
+        try {
+            Class systemPropertiesClass = Class.forName("android.os.SystemProperties");
+            Method m = systemPropertiesClass.getMethod("get", String.class);
+            String navBarOverride = (String) m.invoke(systemPropertiesClass, "qemu.hw.mainkeys");
+            if ("1".equals(navBarOverride)) {
+                hasNavigationBar = false;
+            } else if ("0".equals(navBarOverride)) {
+                hasNavigationBar = true;
+            }
+        } catch (Exception e) {
+
+        }
+        return hasNavigationBar;
+
+    }
     /**
      * Checking keyboard visibility
      */
@@ -1442,8 +1518,14 @@ public class ACEChatKeyboardView extends LinearLayout implements
         mParentLayout.getWindowVisibleDisplayFrame(r);
         int screenHeight = mParentLayout.getRootView()
                 .getHeight();
+        int navigationBarHeight = getNavigationBarHeight();
+
         int heightDifference = screenHeight - (r.bottom);
+        if(heightDifference>0) {
+            heightDifference=heightDifference-navigationBarHeight;
+        }
         boolean isKeyBoardChange = isKeyBoardVisible;
+        Log.e("TAG", "是否存在底部导航栏子：："+checkDeviceHasNavigationBar(mContext)+"：：：底部导航栏子的高度：：："+navigationBarHeight+"::::计算之后的值:::::"+heightDifference);
         if (heightDifference > 100) {
             isKeyBoardVisible = true;
             //弹出键盘的时候,判断下俩者有弹出状态则设置隐藏  2015-08-12
@@ -1517,7 +1599,8 @@ public class ACEChatKeyboardView extends LinearLayout implements
                 }
             }
             BDebug.i(TAG, "Move! height:" + (tempHeight - keyboardHeight - inputHeight) + " tempHeight:" + tempHeight + " ParentkeyboardHeight:" + keyboardHeight + " inputHeight:" + inputHeight);
-            lp.height = tempHeight - keyboardHeight - inputHeight;
+            lp.height = tempHeight - keyboardHeight - inputHeight
+                    +getNavigationBarHeight();
             ((ViewGroup) mUexBaseObj.mBrwView).setLayoutParams(lp);
             ((ViewGroup) mUexBaseObj.mBrwView).invalidate();
         }

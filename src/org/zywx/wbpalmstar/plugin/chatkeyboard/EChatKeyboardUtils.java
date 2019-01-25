@@ -58,6 +58,8 @@ public class EChatKeyboardUtils {
     public final static String CHATKEYBOARD_FUN_ON_COMMIT_JSON = "uexChatKeyboard.onCommitJson";
     public final static String CHATKEYBOARD_FUN_CB_GET_INPUTBAR_HEIGHT = "uexChatKeyboard.cbGetInputBarHeight";
     public final static String CHATKEYBOARD_FUN_ON_INPUT_KEYWORD = "uexChatKeyboard.onInputKeyword";
+    public final static String CHATKEYBOARD_FUN_ON_KEYBORD_DOWN = "uexChatKeyboard.onKeyBoardDown";
+    public final static String CHATKEYBOARD_FUN_ON_KEYBORD_IOCN = "uexChatKeyboard.onKeyBoardIcon";
 
 
     public final static int INPUT_MODE_TEXT = 0;

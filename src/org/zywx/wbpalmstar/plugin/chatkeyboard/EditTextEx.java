@@ -1,6 +1,7 @@
 package org.zywx.wbpalmstar.plugin.chatkeyboard;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.text.Editable;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
@@ -13,7 +14,7 @@ import android.widget.EditText;
  */
 
 public class EditTextEx extends EditText {
-
+    private ACEChatKeyboardView mAceChatKeyboardView;
     public EditTextEx(Context context) {
         super(context);
         init();
@@ -28,6 +29,8 @@ public class EditTextEx extends EditText {
         super(context, attrs, defStyleAttr);
         init();
     }
+
+
 
     private void init(){
         setOnKeyListener(new OnKeyListener() {
@@ -49,6 +52,16 @@ public class EditTextEx extends EditText {
                 return false;
             }
         });
+    }
+
+
+    @Override
+    protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
+        super.onFocusChanged(focused, direction, previouslyFocusedRect);
+        if(focused){
+            mAceChatKeyboardView.KeyBoradiconCallBack(3);
+        }
+
     }
 
     @Override
@@ -75,4 +88,7 @@ public class EditTextEx extends EditText {
         super.onSelectionChanged(selStart, selEnd);
     }
 
+    public void setACEChatKeyboardView(ACEChatKeyboardView aceChatKeyboardView) {
+        this.mAceChatKeyboardView=aceChatKeyboardView;
+    }
 }

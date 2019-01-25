@@ -43,6 +43,7 @@ public class CRes {
     public static int plugin_chatkeyboard_btn_send;
     public static int plugin_chatkeyboard_btn_add;
     public static int plugin_chatkeyboard_btn_voice;
+    public static int plugin_chatkeyboard_down;
     public static int plugin_chatkeyboard_btn_voice_input;
     public static int plugin_chatkeyboard_emojicons_layout;
     public static int plugin_chatkeyboard_emojicons_pager;
@@ -90,6 +91,7 @@ public class CRes {
         plugin_chatkeyboard_btn_send = res.getIdentifier("plugin_chatkeyboard_btn_send", "id", packg);
         plugin_chatkeyboard_btn_add = res.getIdentifier("plugin_chatkeyboard_btn_add", "id", packg);
         plugin_chatkeyboard_btn_voice = res.getIdentifier("plugin_chatkeyboard_btn_voice", "id", packg);
+        plugin_chatkeyboard_down = res.getIdentifier("plugin_chatkeyboard_down", "id", packg);
         plugin_chatkeyboard_btn_voice_input = res.getIdentifier("plugin_chatkeyboard_btn_voice_input", "id", packg);
         plugin_chatkeyboard_emojicons_layout = res.getIdentifier("plugin_chatkeyboard_emojicons_layout", "id", packg);
         plugin_chatkeyboard_emojicons_pager = res.getIdentifier("plugin_chatkeyboard_emojicons_pager", "id", packg);
