@@ -11,8 +11,23 @@
     android:paddingLeft="9dip"
     android:paddingRight="9dip"
     android:paddingTop="5dip" >
-
     <ImageButton
+        android:layout_marginLeft="8dp"
+        android:id="@+id/plugin_chatkeyboard_down"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:background="@drawable/plugin_chatkeybord_down"
+        android:layout_marginRight="15dp"
+        />
+    <View
+        android:layout_width="0.05dp"
+        android:layout_height="match_parent"
+        android:background="#bfbfbf"
+        android:visibility="gone"
+        />
+    <ImageButton
+
+        android:layout_marginLeft="10dp"
         android:id="@+id/plugin_chatkeyboard_btn_voice"
         android:layout_width="32dp"
         android:layout_height="32dp"

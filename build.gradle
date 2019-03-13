@@ -24,6 +24,7 @@ dependencies {
     compile(name: 'support-media-compat-26.0.0', ext: 'aar')
     compile(name: 'support-v4-26.0.0', ext: 'aar')
     compile 'com.android.support:multidex:1.0.0'
+
 }
 
 

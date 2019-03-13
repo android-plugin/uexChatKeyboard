@@ -196,9 +196,12 @@ public class ACEChatKeyboardView extends LinearLayout implements
         mEditLayout = (LinearLayout) findViewById(CRes.plugin_chatkeyboard_edit_input_layout);
         mInputRootLayout= (InputLayout) findViewById(EUExUtil.getResIdID("plugin_chatkeyboard_input_root_layout"));
         mEditText = (EditTextEx) findViewById(CRes.plugin_chatkeyboard_edit_input);
+        mEditText.setACEChatKeyboardView(this);
         mBtnSend = (Button) findViewById(CRes.plugin_chatkeyboard_btn_send);
         mBtnAdd = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_add);
+        mKeyboardDown=(ImageButton)findViewById(CRes.plugin_chatkeyboard_down);
         mBtnVoice = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_voice);
+
         mBtnEmojicon = (ImageButton) findViewById(CRes.plugin_chatkeyboard_btn_emojicon);
         mBtnVoiceInput = (Button) findViewById(CRes.plugin_chatkeyboard_btn_voice_input);
 
@@ -1021,21 +1024,34 @@ public class ACEChatKeyboardView extends LinearLayout implements
             return;
         }
         if (id == CRes.plugin_chatkeyboard_btn_emojicon) {
+//            Toast.makeText(mContext,"表情",Toast.LENGTH_SHORT).show();
+            KeyBoradiconCallBack(1);
             toggleBtnEmojicon(mEmojiconsLayout.isShown() ? false : true);
         } else if (id == CRes.plugin_chatkeyboard_btn_add) {
+//            Toast.makeText(mContext,"添加",Toast.LENGTH_SHORT).show();
+            KeyBoradiconCallBack(2);
             toggleBtnAdd(mSharesLayout.isShown() ? false : true);
         } else if (id == CRes.plugin_chatkeyboard_btn_send) {
             toggleBtnSend();
         } else if (id == CRes.plugin_chatkeyboard_btn_voice) {
             toggleBtnVoice();
         } else if (id == CRes.plugin_chatkeyboard_edit_input) {
+//            Toast.makeText(mContext,"input",Toast.LENGTH_SHORT).show();
+            KeyBoradiconCallBack(3);
+
             if (mPagerLayout.isShown()) {
                 mPagerLayout.setVisibility(View.GONE);
             }
+        }else if(id == CRes.plugin_chatkeyboard_down){
+            String js = EUExChatKeyboard.SCRIPT_HEADER + "if("
+                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_KEYBORD_DOWN + "){"
+                    + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_KEYBORD_DOWN + "();}";
+            mUexBaseObj.onCallback(js);
         }
     }
 
     private void toggleBtnEmojicon(boolean visible) {
+        Log.e("TAG", "visible========"+visible+"=======isKeyBoardVisible====="+isKeyBoardVisible);
         if (visible) {
             if (isKeyBoardVisible) {
                 backScroll();
@@ -1183,6 +1199,28 @@ public class ACEChatKeyboardView extends LinearLayout implements
         }
     }
 
+
+    public void  KeyBoradiconCallBack(int type){
+        if (mUexBaseObj != null) {
+            Log.e("TAG", "================"+type);
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject
+                        .put("type",
+                                type);
+                String js = EUExChatKeyboard.SCRIPT_HEADER
+                        + "if("
+                        + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_KEYBORD_IOCN
+                        + "){"
+                        + EChatKeyboardUtils.CHATKEYBOARD_FUN_ON_KEYBORD_IOCN
+                        + "('" + jsonObject.toString()
+                        + "');}";
+                mUexBaseObj.onCallback(js);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
     private void jsonKeyBoardShowCallback(int status) {
         // TODO	KeyBoardShow status callback String
         if (mUexBaseObj != null) {
