@@ -1,8 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <uexplugins>
     <plugin
-        uexName="uexChatKeyboard" version="4.0.3" build="3">
-        <info>3:添加onFrameChanged接口</info>
+        uexName="uexChatKeyboard" version="4.3.7" build="2019072601">
+        <info>7:修复扩展面板区域的表情和功能图标在plugin子应用中的时候无法正确处理的问题</info>
+        <build>6.1:修复taeget在高版本上部分手机带有底部导航栏，导致表情等弹起异常已经webview高度计算异常</build>
+        <build>4:添加动态权限申请</build>
+        <build>5.2:修改keyboard的高度和样式
+            5.3:修改键盘事件穿透问题
+            5.4:添加键盘表情，输入框，加号点击回调
+            5.5:修改键盘回调统一为获取焦点之后
+            5.6: 修改键盘回调
+        </build>
+        <build>5.1:添加键盘图标并回调,修改字体透明度</build>
+        <build>3:添加onFrameChanged接口</build>
         <build>2:输入支持显示多行，修复平移模式bug</build>
         <build>1:添加setText接口</build>
         <build>0:4.0</build>

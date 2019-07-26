@@ -33,6 +33,7 @@ if (UNIT_TEST) {
                 UNIT_TEST.assert(false);
             }
         },
+
         "onCommit":function () {
             var assert=false;
             uexChatKeyboard.onCommit = function(data){
@@ -46,6 +47,18 @@ if (UNIT_TEST) {
                             setTimeout(function (){window.scrollTo(0, document.body.scrollHeight);},20);
             }
         },
+         "onKeyBoardDown":function () {
+                                    var assert=false;
+                                    uexChatKeyboard.onKeyBoardDown=function () {
+                                        if (!assert){
+                                            UNIT_TEST.assert(true);
+                                            assert=true;
+                                             alert(111111);
+                                        }
+                                    };
+
+                                    UNIT_TEST.log("11111111111");
+                                },
         "onCommitJson":function () {
             var assert=false;
             uexChatKeyboard.onCommitJson = function(data){
@@ -84,6 +97,7 @@ if (UNIT_TEST) {
             };
             UNIT_TEST.log("请展开键盘 输入@ 符号");
         },
+
         "onAt":function () {
             uexChatKeyboard.onAt=function () {
                 UNIT_TEST.assert(true);

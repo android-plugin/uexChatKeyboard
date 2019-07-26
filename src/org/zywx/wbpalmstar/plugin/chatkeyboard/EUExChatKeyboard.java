@@ -18,18 +18,24 @@
 
 package org.zywx.wbpalmstar.plugin.chatkeyboard;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.zywx.wbpalmstar.base.BUtility;
+import org.zywx.wbpalmstar.engine.EBrowserActivity;
 import org.zywx.wbpalmstar.engine.EBrowserView;
 import org.zywx.wbpalmstar.engine.universalex.EUExBase;
 import org.zywx.wbpalmstar.engine.universalex.EUExUtil;
@@ -45,6 +51,7 @@ public class EUExChatKeyboard extends EUExBase {
     private static final int CHATKEYBOARD_MSG_HIDE_KEYBOARD = 3;
 
     private ACEChatKeyboardView mChatKeyboardView;
+    private String[] openParams;
 
     public EUExChatKeyboard(Context context, EBrowserView view) {
         super(context, view);
@@ -71,7 +78,15 @@ public class EUExChatKeyboard extends EUExBase {
     }
 
     public void open(String[] params) {
-        sendMessageWithType(CHATKEYBOARD_MSG_OPEN, params);
+        openParams = params;
+        // android6.0以上动态权限申请
+        if (mContext.checkCallingOrSelfPermission(Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED){
+            requsetPerssions(Manifest.permission.RECORD_AUDIO, "请先申请权限"
+                    + Manifest.permission.RECORD_AUDIO, 1);
+        } else {
+            sendMessageWithType(CHATKEYBOARD_MSG_OPEN, params);
+        }
     }
 
     public void close(String[] params) {
@@ -166,6 +181,7 @@ public class EUExChatKeyboard extends EUExBase {
                 handleClose();
             }
             JSONObject json = new JSONObject(params[0]);
+            json = handleOpenParams(json);
             mChatKeyboardView = new ACEChatKeyboardView(mContext, json, this);
 
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
@@ -175,6 +191,25 @@ public class EUExChatKeyboard extends EUExBase {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private JSONObject handleOpenParams(JSONObject jsonParams){
+        if (jsonParams == null) {
+            return null;
+        }
+        try {
+            String emojiconsXmlPath = jsonParams
+                    .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS);
+            String newEmotionsXmlPath = BUtility.makeRealPath(emojiconsXmlPath, mBrwView);
+            jsonParams.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS, newEmotionsXmlPath);
+            String sharesXmlPath = jsonParams
+                    .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SHARES);
+            String newSharesXmlPath = BUtility.makeRealPath(sharesXmlPath, mBrwView);
+            jsonParams.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SHARES, newSharesXmlPath);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonParams;
     }
 
     private void handleClose() {
@@ -232,5 +267,26 @@ public class EUExChatKeyboard extends EUExBase {
             return mChatKeyboardView.getText();
         }
         return null;
+    }
+
+    @Override
+    public void onRequestPermissionResult(int requestCode,  String[] permissions,  int[] grantResults) {
+        super.onRequestPermissionResult(requestCode, permissions, grantResults);
+        if (requestCode == 1){
+            if (grantResults[0] != PackageManager.PERMISSION_DENIED){
+                sendMessageWithType(CHATKEYBOARD_MSG_OPEN, openParams);
+            } else {
+                // 对于 ActivityCompat.shouldShowRequestPermissionRationale
+                // 1：用户拒绝了该权限，没有勾选"不再提醒"，此方法将返回true。
+                // 2：用户拒绝了该权限，有勾选"不再提醒"，此方法将返回 false。
+                // 3：如果用户同意了权限，此方法返回false
+                // 拒绝了权限且勾选了"不再提醒"
+                if (!ActivityCompat.shouldShowRequestPermissionRationale((EBrowserActivity)mContext, permissions[0])) {
+                    Toast.makeText(mContext, "请先设置权限" + permissions[0], Toast.LENGTH_LONG).show();
+                } else {
+                    requsetPerssions(Manifest.permission.RECORD_AUDIO, "请先申请权限" + permissions[0], 1);
+                }
+            }
+        }
     }
 }

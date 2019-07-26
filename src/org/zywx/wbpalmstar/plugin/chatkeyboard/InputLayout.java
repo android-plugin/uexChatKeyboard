@@ -2,6 +2,7 @@ package org.zywx.wbpalmstar.plugin.chatkeyboard;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.LinearLayout;
 
 /**
@@ -38,4 +39,8 @@ public class InputLayout extends LinearLayout {
         void onSizeChanged(int w, int h, int oldw, int oldh);
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return true;
+    }
 }
