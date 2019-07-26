@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <uexplugins>
     <plugin
-        uexName="uexChatKeyboard" version="4.3.4" build="4">
-        <info>6.1:修复taeget在高版本上部分手机带有底部导航栏，导致表情等弹起异常已经webview高度计算异常</info>
+        uexName="uexChatKeyboard" version="4.3.7" build="2019072601">
+        <info>7:修复扩展面板区域的表情和功能图标在plugin子应用中的时候无法正确处理的问题</info>
+        <build>6.1:修复taeget在高版本上部分手机带有底部导航栏，导致表情等弹起异常已经webview高度计算异常</build>
         <build>4:添加动态权限申请</build>
         <build>5.2:修改keyboard的高度和样式
             5.3:修改键盘事件穿透问题

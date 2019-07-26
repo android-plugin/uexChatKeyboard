@@ -77,6 +77,8 @@ import org.zywx.wbpalmstar.base.BDebug;
 import org.zywx.wbpalmstar.base.BUtility;
 import org.zywx.wbpalmstar.engine.universalex.EUExUtil;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -489,17 +491,41 @@ public class ACEChatKeyboardView extends LinearLayout implements
     }
 
     /**
+     * 根据路径不同，使用不同的方式获得文件流
+     *
+     * @param resXmlPath 文件路径
+     */
+    private InputStream getInputStreamFromPath(String resXmlPath) {
+        InputStream in = null;
+        if (!TextUtils.isEmpty(resXmlPath)) {
+            if (resXmlPath.startsWith("widget/")) {
+                // widget/开头的话，则认为是assets中的文件
+                try {
+                    in = getContext().getAssets().open(resXmlPath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // 普通文件路径
+                try {
+                    in = new FileInputStream(resXmlPath);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return in;
+    }
+
+    /**
      * Reading all emoticons in local cache
      */
     private void initEmojicons() {
         InputStream in = null;
         try {
-            String xmlPath = mEmojiconsXmlPath
-                    .substring(BUtility.F_Widget_RES_SCHEMA.length());
-            String emojiconsFolder = BUtility.F_Widget_RES_path
-                    + xmlPath.substring(0, xmlPath.lastIndexOf("/") + 1);
-            String resXmlPath = BUtility.F_Widget_RES_path + xmlPath;
-            in = getContext().getAssets().open(resXmlPath);
+            String resXmlPath = mEmojiconsXmlPath;
+            String emojiconsFolder = resXmlPath.substring(0, resXmlPath.lastIndexOf("/") + 1);
+            in = getInputStreamFromPath(resXmlPath);
             XmlPullParser parser = Xml.newPullParser();
             parser.setInput(in, "utf-8");
             int tokenType = 0;
@@ -744,12 +770,9 @@ public class ACEChatKeyboardView extends LinearLayout implements
     private void initShares() {
         InputStream in = null;
         try {
-            String xmlPath = mSharesXmlPath
-                    .substring(BUtility.F_Widget_RES_SCHEMA.length());
-            String sharesFolder = BUtility.F_Widget_RES_path
-                    + xmlPath.substring(0, xmlPath.lastIndexOf("/") + 1);
-            String resXmlPath = BUtility.F_Widget_RES_path + xmlPath;
-            in = getContext().getAssets().open(resXmlPath);
+            String resXmlPath = mSharesXmlPath;
+            String sharesFolder = resXmlPath.substring(0, resXmlPath.lastIndexOf("/") + 1);
+            in = getInputStreamFromPath(resXmlPath);
             XmlPullParser parser = Xml.newPullParser();
             parser.setInput(in, "utf-8");
             int tokenType = 0;

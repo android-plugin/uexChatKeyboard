@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.zywx.wbpalmstar.base.BUtility;
 import org.zywx.wbpalmstar.engine.EBrowserActivity;
 import org.zywx.wbpalmstar.engine.EBrowserView;
 import org.zywx.wbpalmstar.engine.universalex.EUExBase;
@@ -180,6 +181,7 @@ public class EUExChatKeyboard extends EUExBase {
                 handleClose();
             }
             JSONObject json = new JSONObject(params[0]);
+            json = handleOpenParams(json);
             mChatKeyboardView = new ACEChatKeyboardView(mContext, json, this);
 
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
@@ -189,6 +191,25 @@ public class EUExChatKeyboard extends EUExBase {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private JSONObject handleOpenParams(JSONObject jsonParams){
+        if (jsonParams == null) {
+            return null;
+        }
+        try {
+            String emojiconsXmlPath = jsonParams
+                    .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS);
+            String newEmotionsXmlPath = BUtility.makeRealPath(emojiconsXmlPath, mBrwView);
+            jsonParams.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_EMOJICONS, newEmotionsXmlPath);
+            String sharesXmlPath = jsonParams
+                    .getString(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SHARES);
+            String newSharesXmlPath = BUtility.makeRealPath(sharesXmlPath, mBrwView);
+            jsonParams.put(EChatKeyboardUtils.CHATKEYBOARD_PARAMS_JSON_KEY_SHARES, newSharesXmlPath);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonParams;
     }
 
     private void handleClose() {
