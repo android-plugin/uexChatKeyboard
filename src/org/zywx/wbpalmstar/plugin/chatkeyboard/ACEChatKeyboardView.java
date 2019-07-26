@@ -137,6 +137,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
     private int mBrwViewHeight = 0;
     private List<String> keywords = new ArrayList<String>();
     private int mLastAtPosition=0;
+    private Context mContext;
 
     private static int DRAG_STATE_IDLE=-1;
     private static int DRAG_STATE_DOWN=0;
@@ -148,6 +149,7 @@ public class ACEChatKeyboardView extends LinearLayout implements
         this.setOrientation(VERTICAL);
         this.setGravity(Gravity.BOTTOM);
         this.mUexBaseObj = uexBaseObj;
+        this.mContext = context;
         CRes.init(getContext().getApplicationContext());
         mInputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 
