@@ -1,9 +1,10 @@
 buildscript {
     repositories {
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:3.0.1'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -12,22 +13,6 @@ buildscript {
 
 apply plugin: 'com.android.application'
 
-dependencies {
-    compile fileTree(include: '*.jar', dir: 'libs')
-//    compile 'org.appcan:engine:+:systemRelease@aar'
-    compile 'com.android.support:multidex:1.0.0'
-    compile(name: 'Engine-system-release', ext: 'aar')
-    compile(name: 'support-compat-26.0.0', ext: 'aar')
-    compile(name: 'support-core-ui-26.0.0', ext: 'aar')
-    compile(name: 'support-core-utils-26.0.0', ext: 'aar')
-    compile(name: 'support-fragment-26.0.0', ext: 'aar')
-    compile(name: 'support-media-compat-26.0.0', ext: 'aar')
-    compile(name: 'support-v4-26.0.0', ext: 'aar')
-    compile 'com.android.support:multidex:1.0.0'
-
-}
-
-
 repositories {
     flatDir {
         dirs 'libs'
@@ -35,6 +20,20 @@ repositories {
     maven {
         url 'https://raw.githubusercontent.com/android-plugin/mvn-repo/master/'
     }
+    google()
+}
+
+dependencies {
+    implementation fileTree(include: '*.jar', dir: 'libs')
+//    implementation 'org.appcan:engine:4.3.21'
+    implementation(name: 'engine-system-release-4.3.21', ext: 'aar')
+    implementation(name: 'support-compat-26.0.0', ext: 'aar')
+    implementation(name: 'support-core-ui-26.0.0', ext: 'aar')
+    implementation(name: 'support-core-utils-26.0.0', ext: 'aar')
+    implementation(name: 'support-fragment-26.0.0', ext: 'aar')
+    implementation(name: 'support-media-compat-26.0.0', ext: 'aar')
+    implementation(name: 'support-v4-26.0.0', ext: 'aar')
+
 }
 
 android {
@@ -68,14 +67,14 @@ android {
         release.setRoot('build-types/release')
     }
     defaultConfig {
-        targetSdkVersion 26
         applicationId 'org.zywx.wbpalmstar.widgetone.uexchatkeyboard'
-        minSdkVersion 14
-        targetSdkVersion 26 //
+        minSdkVersion 18
+        targetSdkVersion 28
         multiDexEnabled true
     }
     productFlavors {
     }
 }
 
-apply from: "buildPlugin.gradle"
+//apply from: "buildPlugin.gradle"
+apply from: "https://raw.githubusercontent.com/android-plugin/gradle-plugin/master/buildPlugin.gradle"
